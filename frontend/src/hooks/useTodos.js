@@ -1,10 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
-import { fetchTodos, addTodo, updateTodo, deleteTodo } from '../api/todos';
+import { fetchTodos, addTodo, updateTodo, deleteTodo, fetchHistory, clearHistory as apiClearHistory } from '../api/todos';
 
 export const useTodos = (addToast) => {
   const [todos, setTodos] = useState([]);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const loadHistory = useCallback(async () => {
+    try {
+      const data = await fetchHistory();
+      setHistory(data);
+    } catch (err) {
+      console.error('Failed to load history logs:', err);
+    }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -12,6 +21,7 @@ export const useTodos = (addToast) => {
       setError('');
       const data = await fetchTodos();
       setTodos(data);
+      await loadHistory();
     } catch (err) {
       console.error(err);
       setError('Could not connect to the backend server.');
@@ -19,7 +29,7 @@ export const useTodos = (addToast) => {
     } finally {
       setLoading(false);
     }
-  }, [addToast]);
+  }, [addToast, loadHistory]);
 
   useEffect(() => {
     load();
@@ -30,6 +40,7 @@ export const useTodos = (addToast) => {
       const newTodo = await addTodo(taskData);
       setTodos((prev) => [newTodo, ...prev]);
       addToast(`Task "${newTodo.title}" added!`, 'success');
+      await loadHistory();
     } catch (err) {
       console.error(err);
       addToast(err.message || 'Error adding task.', 'error');
@@ -60,6 +71,7 @@ export const useTodos = (addToast) => {
         ? `Completed: "${updated.title}"${created ? ' (recurring task scheduled!)' : ''}`
         : `Re-opened: "${updated.title}"`;
       addToast(msg, 'success');
+      await loadHistory();
     } catch (err) {
       console.error(err);
       addToast('Error updating completion status.', 'error');
@@ -84,6 +96,7 @@ export const useTodos = (addToast) => {
       });
       
       addToast(`Task "${updated.title}" updated!`, 'success');
+      await loadHistory();
     } catch (err) {
       console.error(err);
       addToast(err.message || 'Error updating task details.', 'error');
@@ -97,11 +110,23 @@ export const useTodos = (addToast) => {
       await deleteTodo(id);
       setTodos((prev) => prev.filter((t) => t.id !== id));
       addToast(`Deleted task: "${todo.title}"`, 'info');
+      await loadHistory();
     } catch (err) {
       console.error(err);
       addToast('Error deleting task.', 'error');
     }
   };
 
-  return { todos, loading, error, load, create, toggleComplete, edit, remove };
+  const clearHistoryLogs = async () => {
+    try {
+      await apiClearHistory();
+      setHistory([]);
+      addToast('Activity history cleared.', 'info');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to clear history logs.', 'error');
+    }
+  };
+
+  return { todos, history, loading, error, load, create, toggleComplete, edit, remove, clearHistoryLogs };
 };

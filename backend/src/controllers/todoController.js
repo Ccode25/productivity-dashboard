@@ -106,9 +106,37 @@ const deleteTodo = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/todos/history
+ * Get all history logs
+ */
+const getHistory = async (req, res) => {
+  try {
+    const logs = await todoModel.getHistory();
+    res.json(logs);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to retrieve history logs.' });
+  }
+};
+
+/**
+ * DELETE /api/todos/history
+ * Clear all history logs
+ */
+const clearHistory = async (req, res) => {
+  try {
+    await todoModel.clearHistory();
+    res.json({ message: 'History logs cleared successfully.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to clear history logs.' });
+  }
+};
+
 module.exports = {
   getTodos,
   createTodo,
   updateTodo,
-  deleteTodo
+  deleteTodo,
+  getHistory,
+  clearHistory
 };

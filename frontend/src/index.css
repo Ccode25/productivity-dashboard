@@ -1155,3 +1155,26 @@ select.input-field {
   }
 }
 
+/* ==========================================================================
+   Timeline / History Logs Styles
+   ========================================================================== */
+.timeline-item {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.timeline-item:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.timeline-node {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.timeline-item:hover .timeline-node {
+  transform: scale(1.2) !important;
+}
+
+

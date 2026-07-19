@@ -8,6 +8,7 @@ import FilterBar from './components/FilterBar';
 import { useTodos } from './hooks/useTodos';
 import DailySummaryView from './components/DailySummaryView';
 import ProductivityView from './components/ProductivityView';
+import HistoryView from './components/HistoryView';
 
 export default function App() {
   // Toast helpers
@@ -34,7 +35,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState('board');
 
   // Load and manage todos via custom hook
-  const { todos, loading, error, load, create, toggleComplete, edit, remove } = useTodos(addToast);
+  const { todos, history, loading, error, load, create, toggleComplete, edit, remove, clearHistoryLogs } = useTodos(addToast);
 
   // Wrapper handlers that delegate to hook functions
   const handleAddTodo = async (taskData) => {
@@ -89,8 +90,8 @@ export default function App() {
       {/* Stats Board */}
       <StatsDashboard todos={todos} />
 
-      {/* Task Form (Adds or Edits) - Hidden in Productivity View */}
-      {viewMode !== 'productivity' && (
+      {/* Task Form (Adds or Edits) - Hidden in Productivity & History Views */}
+      {viewMode !== 'productivity' && viewMode !== 'history' && (
         <TaskForm
           onSubmit={todoToEdit ? handleSaveEdit : handleAddTodo}
           todoToEdit={todoToEdit}
@@ -135,10 +136,20 @@ export default function App() {
           </svg>
           Productivity
         </button>
+        <button 
+          className={`view-switcher-btn ${viewMode === 'history' ? 'active' : ''}`}
+          onClick={() => setViewMode('history')}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          History
+        </button>
       </div>
 
-      {/* Controls Bar (Search & Filters) - Hidden in Productivity View */}
-      {viewMode !== 'productivity' && (
+      {/* Controls Bar (Search & Filters) - Hidden in Productivity & History Views */}
+      {viewMode !== 'productivity' && viewMode !== 'history' && (
         <FilterBar
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -149,7 +160,7 @@ export default function App() {
         />
       )}
 
-      {/* Task List / Productivity Dashboard */}
+      {/* Task List / Productivity / History Dashboard */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '2rem', color: 'hsl(var(--text-secondary))' }}>
           <p>Syncing task board...</p>
@@ -161,6 +172,8 @@ export default function App() {
         </div>
       ) : viewMode === 'productivity' ? (
         <ProductivityView todos={todos} />
+      ) : viewMode === 'history' ? (
+        <HistoryView history={history} onClearHistory={clearHistoryLogs} />
       ) : viewMode === 'daily' ? (
         <DailySummaryView
           todos={filteredTodos}

@@ -33,3 +33,15 @@ export const deleteTodo = async (id) => {
   if (!response.ok) throw new Error('Failed to delete task');
   return true;
 };
+
+export const fetchHistory = async () => {
+  const response = await fetch('/api/todos/history');
+  if (!response.ok) throw new Error(`Server returned ${response.status}`);
+  return response.json();
+};
+
+export const clearHistory = async () => {
+  const response = await fetch('/api/todos/history', { method: 'DELETE' });
+  if (!response.ok) throw new Error('Failed to clear history');
+  return true;
+};

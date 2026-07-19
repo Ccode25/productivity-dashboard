@@ -40,6 +40,52 @@ let todos = [
   }
 ];
 
+// In-memory activity history log
+let history = [
+  {
+    id: 'h1',
+    todoId: '1',
+    action: 'created',
+    todoTitle: 'Design Premium UI',
+    category: 'Design',
+    timestamp: new Date(Date.now() - 172800000).toISOString(),
+    details: 'Task created under category Design'
+  },
+  {
+    id: 'h2',
+    todoId: '1',
+    action: 'completed',
+    todoTitle: 'Design Premium UI',
+    category: 'Design',
+    timestamp: new Date(Date.now() - 86400000).toISOString(),
+    details: 'Task marked as completed'
+  },
+  {
+    id: 'h3',
+    todoId: '2',
+    action: 'created',
+    todoTitle: 'Setup Express Backend',
+    category: 'Work',
+    timestamp: new Date(Date.now() - 86400000).toISOString(),
+    details: 'Task created under category Work'
+  }
+];
+
+/**
+ * Add an event log to the history timeline
+ */
+const addHistoryLog = (action, todo, details = '') => {
+  history.unshift({
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+    todoId: todo.id,
+    action,
+    todoTitle: todo.title,
+    category: todo.category || 'Other',
+    timestamp: new Date().toISOString(),
+    details: details || `Task ${action}`
+  });
+};
+
 /**
  * Find all todos
  */
@@ -52,6 +98,21 @@ const findAll = async () => {
  */
 const findById = async (id) => {
   return todos.find((t) => t.id === id);
+};
+
+/**
+ * Get all history logs
+ */
+const getHistory = async () => {
+  return history;
+};
+
+/**
+ * Clear history logs
+ */
+const clearHistory = async () => {
+  history = [];
+  return true;
 };
 
 /**
@@ -71,6 +132,7 @@ const create = async (todoData) => {
   };
 
   todos.unshift(newTodo);
+  addHistoryLog('created', newTodo, `Task created under category ${newTodo.category}`);
   return newTodo;
 };
 
@@ -124,9 +186,19 @@ const update = async (id, todoData) => {
 
   todos[todoIndex] = updatedTodo;
 
+  // Log completion/reopen/update status
+  if (updatedTodo.completed && !existingTodo.completed) {
+    addHistoryLog('completed', updatedTodo, 'Task marked as completed');
+  } else if (!updatedTodo.completed && existingTodo.completed) {
+    addHistoryLog('reopened', updatedTodo, 'Task reopened');
+  } else {
+    addHistoryLog('updated', updatedTodo, 'Task details updated');
+  }
+
   // Unshift new recurring todo after saving updatedTodo to avoid index-shift issues
   if (newRecurringTodo) {
     todos.unshift(newRecurringTodo);
+    addHistoryLog('created', newRecurringTodo, `Next recurring occurrence automatically scheduled (Due: ${newRecurringTodo.dueDate})`);
   }
 
   return {
@@ -142,13 +214,17 @@ const remove = async (id) => {
   const todoIndex = todos.findIndex((t) => t.id === id);
   if (todoIndex === -1) return false;
 
+  const todo = todos[todoIndex];
   todos.splice(todoIndex, 1);
+  addHistoryLog('deleted', todo, 'Task deleted from board');
   return true;
 };
 
 module.exports = {
   findAll,
   findById,
+  getHistory,
+  clearHistory,
   create,
   update,
   remove

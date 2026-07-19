@@ -9,6 +9,12 @@ router.get('/', todoController.getTodos);
 // POST /api/todos - Create new todo
 router.post('/', validateTodoMiddleware, todoController.createTodo);
 
+// GET /api/todos/history - Get all history logs
+router.get('/history', todoController.getHistory);
+
+// DELETE /api/todos/history - Clear all history logs
+router.delete('/history', todoController.clearHistory);
+
 // PUT /api/todos/:id - Update todo
 router.put('/:id', validateTodoMiddleware, todoController.updateTodo);
 
