@@ -1093,3 +1093,65 @@ select.input-field {
     padding: 0.75rem 1rem;
   }
 }
+
+/* ==========================================================================
+   Productivity View & Analytics Styles
+   ========================================================================== */
+.streak-glow {
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.25);
+  animation: pulseStreak 2s infinite alternate;
+}
+
+@keyframes pulseStreak {
+  0% { transform: scale(1); box-shadow: 0 0 10px rgba(249, 115, 22, 0.2); }
+  100% { transform: scale(1.05); box-shadow: 0 0 20px rgba(249, 115, 22, 0.4); }
+}
+
+.chart-bar-fill {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.chart-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+  border-radius: 6px 6px 0 0;
+  pointer-events: none;
+}
+
+.chart-bar-fill:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.15);
+  box-shadow: 0 4px 15px hsl(var(--primary) / 0.4);
+}
+
+.analytics-stat-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.analytics-stat-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Productivity Responsive Grid Overrides */
+@media (max-width: 768px) {
+  .productivity-header-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  .productivity-charts-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+}
+

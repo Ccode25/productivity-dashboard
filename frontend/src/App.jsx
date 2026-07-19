@@ -7,6 +7,7 @@ import ToastNotification from './components/ToastNotification';
 import FilterBar from './components/FilterBar';
 import { useTodos } from './hooks/useTodos';
 import DailySummaryView from './components/DailySummaryView';
+import ProductivityView from './components/ProductivityView';
 
 export default function App() {
   // Toast helpers
@@ -88,12 +89,14 @@ export default function App() {
       {/* Stats Board */}
       <StatsDashboard todos={todos} />
 
-      {/* Task Form (Adds or Edits) */}
-      <TaskForm
-        onSubmit={todoToEdit ? handleSaveEdit : handleAddTodo}
-        todoToEdit={todoToEdit}
-        onCancelEdit={handleCancelEdit}
-      />
+      {/* Task Form (Adds or Edits) - Hidden in Productivity View */}
+      {viewMode !== 'productivity' && (
+        <TaskForm
+          onSubmit={todoToEdit ? handleSaveEdit : handleAddTodo}
+          todoToEdit={todoToEdit}
+          onCancelEdit={handleCancelEdit}
+        />
+      )}
 
       {/* View Switcher Segmented Control */}
       <div className="view-switcher-container">
@@ -121,19 +124,32 @@ export default function App() {
           </svg>
           Daily Review
         </button>
+        <button 
+          className={`view-switcher-btn ${viewMode === 'productivity' ? 'active' : ''}`}
+          onClick={() => setViewMode('productivity')}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+          Productivity
+        </button>
       </div>
 
-      {/* Controls Bar (Search & Filters) */}
-      <FilterBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-      />
+      {/* Controls Bar (Search & Filters) - Hidden in Productivity View */}
+      {viewMode !== 'productivity' && (
+        <FilterBar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+        />
+      )}
 
-      {/* Task List */}
+      {/* Task List / Productivity Dashboard */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '2rem', color: 'hsl(var(--text-secondary))' }}>
           <p>Syncing task board...</p>
@@ -143,6 +159,8 @@ export default function App() {
           <p style={{ color: 'hsl(var(--danger))', marginBottom: '1rem', fontWeight: 500 }}>{error}</p>
           <button className="btn btn-secondary" onClick={load}>Retry Connection</button>
         </div>
+      ) : viewMode === 'productivity' ? (
+        <ProductivityView todos={todos} />
       ) : viewMode === 'daily' ? (
         <DailySummaryView
           todos={filteredTodos}
