@@ -1177,4 +1177,29 @@ select.input-field {
   transform: scale(1.2) !important;
 }
 
+/* Grouped Day Headers & Journal Compiler styling */
+.timeline-day-header {
+  position: relative;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.journal-export-card {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  background: rgba(255, 255, 255, 0.01) !important;
+  border-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+@media (max-width: 900px) {
+  .history-grid-layout {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+  
+  .journal-export-card {
+    position: static !important;
+  }
+}
+
+
 

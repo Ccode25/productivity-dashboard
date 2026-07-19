@@ -1,73 +1,112 @@
-// In-memory mock database store
+// In-memory mock database store for Project Engineer handling construction documentation
 let todos = [
   {
     id: '1',
-    title: 'Design Premium UI',
-    description: 'Implement a glassmorphic dark theme dashboard with custom animations and harmonious HSL gradients.',
-    category: 'Design',
-    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // tomorrow
-    repeat: 'daily',
-    completed: true,
-    createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
-  },
-  {
-    id: '2',
-    title: 'Setup Express Backend',
-    description: 'Build robust RESTful API endpoints for CRUD operations with robust data validation.',
-    category: 'Work',
+    title: 'Submit Material Submittal for Structural Steel Coating',
+    description: 'Prepare and transmit manufacturer technical data sheets, test certifications, and sample mockups to architectural consultant for review.',
+    category: 'Submittals',
     dueDate: new Date().toISOString().split('T')[0], // today
     repeat: 'none',
-    completed: false,
+    completed: true,
     createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
   },
   {
-    id: '3',
-    title: 'Build React Frontend',
-    description: 'Create the interactive UI components, integrate fetch requests, and display nice toast notifications.',
-    category: 'Work',
-    dueDate: new Date(Date.now() + 172800000).toISOString().split('T')[0], // in 2 days
+    id: '2',
+    title: 'Review Sector B Concrete Core Strength Test Reports',
+    description: 'Analyze laboratory compressive strength logs for 7-day and 28-day concrete cures in gridlines E-K. Confirm compliance with ASTM standards.',
+    category: 'Quality',
+    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // tomorrow
+    repeat: 'none',
     completed: false,
     createdAt: new Date().toISOString()
   },
   {
+    id: '3',
+    title: 'Publish Daily Site Construction Activity Journal',
+    description: 'Record daily weather conditions, trade headcount, equipment utilization, material deliveries, and documented progress photos.',
+    category: 'Site Logs',
+    dueDate: new Date().toISOString().split('T')[0], // today
+    repeat: 'daily',
+    completed: false,
+    createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+  },
+  {
     id: '4',
-    title: 'Read scientific literature',
-    description: 'Take a breaks and review interesting papers on bioRxiv.',
-    category: 'Personal',
-    dueDate: '',
+    title: 'Log RFI for Foundation Level Piping Clash',
+    description: 'Raise RFI to MEP consultant regarding piping clash between gravity drainage line and foundation beam #FB-12.',
+    category: 'RFIs',
+    dueDate: new Date(Date.now() - 86400000).toISOString().split('T')[0], // yesterday
+    repeat: 'none',
+    completed: true,
+    createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+  },
+  {
+    id: '5',
+    title: 'Perform Weekly Site Safety Walkthrough and Safety Log',
+    description: 'Inspect site scaffolding, personal protective equipment (PPE) compliance, and fire protection equipment. Upload audit sheet.',
+    category: 'Safety',
+    dueDate: new Date(Date.now() + 172800000).toISOString().split('T')[0], // in 2 days
+    repeat: 'weekly',
     completed: false,
     createdAt: new Date().toISOString()
   }
 ];
 
-// In-memory activity history log
+// In-memory activity history log for Project Engineer
 let history = [
   {
     id: 'h1',
-    todoId: '1',
+    todoId: '4',
     action: 'created',
-    todoTitle: 'Design Premium UI',
-    category: 'Design',
-    timestamp: new Date(Date.now() - 172800000).toISOString(),
-    details: 'Task created under category Design'
+    todoTitle: 'Log RFI for Foundation Level Piping Clash',
+    category: 'RFIs',
+    timestamp: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    details: 'RFI draft initialized regarding foundation clash'
   },
   {
     id: 'h2',
-    todoId: '1',
-    action: 'completed',
-    todoTitle: 'Design Premium UI',
-    category: 'Design',
-    timestamp: new Date(Date.now() - 86400000).toISOString(),
-    details: 'Task marked as completed'
+    todoId: '4',
+    action: 'updated',
+    todoTitle: 'Log RFI for Foundation Level Piping Clash',
+    category: 'RFIs',
+    timestamp: new Date(Date.now() - 129600000).toISOString(), // 1.5 days ago
+    details: 'Piping shop drawings attached to RFI document'
   },
   {
     id: 'h3',
+    todoId: '4',
+    action: 'completed',
+    todoTitle: 'Log RFI for Foundation Level Piping Clash',
+    category: 'RFIs',
+    timestamp: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    details: 'RFI transmitted to structural and MEP consultants'
+  },
+  {
+    id: 'h4',
+    todoId: '1',
+    action: 'created',
+    todoTitle: 'Submit Material Submittal for Structural Steel Coating',
+    category: 'Submittals',
+    timestamp: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    details: 'Submittal document compiled with technical data sheets'
+  },
+  {
+    id: 'h5',
+    todoId: '1',
+    action: 'completed',
+    todoTitle: 'Submit Material Submittal for Structural Steel Coating',
+    category: 'Submittals',
+    timestamp: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+    details: 'Transmitted package approved with comments by architectural consultant'
+  },
+  {
+    id: 'h6',
     todoId: '2',
     action: 'created',
-    todoTitle: 'Setup Express Backend',
-    category: 'Work',
-    timestamp: new Date(Date.now() - 86400000).toISOString(),
-    details: 'Task created under category Work'
+    todoTitle: 'Review Sector B Concrete Core Strength Test Reports',
+    category: 'Quality',
+    timestamp: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+    details: 'Strength reports received from testing laboratory and logged for review'
   }
 ];
 
