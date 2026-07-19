@@ -1,12 +1,200 @@
 import React, { useState, useEffect } from 'react';
 
 // ==========================================================================
-// SUB-COMPONENTS (View Components)
+// STATIC CONFIGURATIONS & STYLING METADATA
 // ==========================================================================
 
-/**
- * Header panel with title, subtitle, and clear audit action.
- */
+const ACTION_CONFIG = {
+  created: {
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    ),
+    color: '#10b981',
+    bg: 'rgba(16, 185, 129, 0.1)',
+    label: 'Registered'
+  },
+  completed: {
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    ),
+    color: '#10b981',
+    bg: 'rgba(16, 185, 129, 0.15)',
+    label: 'Approved'
+  },
+  reopened: {
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+      </svg>
+    ),
+    color: '#f59e0b',
+    bg: 'rgba(245, 158, 11, 0.12)',
+    label: 'Reopened'
+  },
+  updated: {
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+      </svg>
+    ),
+    color: 'hsl(var(--primary))',
+    bg: 'rgba(139, 92, 246, 0.12)',
+    label: 'Revision'
+  },
+  deleted: {
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      </svg>
+    ),
+    color: 'hsl(var(--danger))',
+    bg: 'rgba(239, 68, 68, 0.15)',
+    label: 'Archived'
+  }
+};
+
+const DEFAULT_ACTION_STYLE = {
+  icon: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10" />
+    </svg>
+  ),
+  color: 'hsl(var(--text-secondary))',
+  bg: 'rgba(255, 255, 255, 0.05)',
+  label: 'Action'
+};
+
+
+// ==========================================================================
+// FILE-SCOPE PURE HELPER UTILITIES
+// ==========================================================================
+
+const formatTime = (isoStr) => {
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+};
+
+const formatDayHeader = (dateStr) => {
+  try {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
+    
+    const now = new Date();
+    const todayStr = now.toLocaleDateString('en-CA');
+    
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toLocaleDateString('en-CA');
+
+    const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
+    const formattedDate = d.toLocaleDateString('en-US', options);
+
+    if (dateStr === todayStr) {
+      return `Today — ${formattedDate}`;
+    }
+    if (dateStr === yesterdayStr) {
+      return `Yesterday — ${formattedDate}`;
+    }
+    return formattedDate;
+  } catch {
+    return dateStr;
+  }
+};
+
+const groupLogsByDay = (logs) => {
+  const groups = {};
+  logs.forEach((log) => {
+    if (!log.timestamp) return;
+    const dateStr = new Date(log.timestamp).toLocaleDateString('en-CA'); // YYYY-MM-DD
+    if (!groups[dateStr]) groups[dateStr] = [];
+    groups[dateStr].push(log);
+  });
+  return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
+};
+
+const generateJournalLog = (dateStr, history) => {
+  if (!dateStr) return '';
+  const dayLogs = history.filter((l) => {
+    const logDate = new Date(l.timestamp).toLocaleDateString('en-CA');
+    return logDate === dateStr;
+  });
+
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
+  const dateDisplay = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  let logText = `================================================
+DAILY SITE JOURNAL LOG - ${dateStr}
+================================================
+Generated on: ${new Date().toLocaleDateString()}
+Project Date: ${dateDisplay}
+Officer: Project Documentation Engineer
+
+------------------------------------------------
+1. COMPLETED ACTIONS & SIGN-OFFS
+------------------------------------------------\n`;
+
+  const completedActions = dayLogs.filter((l) => l.action === 'completed');
+  if (completedActions.length === 0) {
+    logText += `  [NIL] No documents signed off or tasks completed.\n`;
+  } else {
+    completedActions.forEach((l) => {
+      const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+      logText += `  [${time}] Completed: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
+    });
+  }
+
+  logText += `------------------------------------------------
+2. NEW CORRESPONDENCE & LOGGED ITEMS
+------------------------------------------------\n`;
+
+  const createdActions = dayLogs.filter((l) => l.action === 'created');
+  if (createdActions.length === 0) {
+    logText += `  [NIL] No new correspondence registered.\n`;
+  } else {
+    createdActions.forEach((l) => {
+      const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+      logText += `  [${time}] Registered: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
+    });
+  }
+
+  logText += `------------------------------------------------
+3. MODIFICATIONS & DELETIONS
+------------------------------------------------\n`;
+
+  const otherActions = dayLogs.filter((l) => l.action !== 'completed' && l.action !== 'created');
+  if (otherActions.length === 0) {
+    logText += `  [NIL] No document revisions or deletions recorded.\n`;
+  } else {
+    otherActions.forEach((l) => {
+      const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+      const actionLabel = l.action.toUpperCase();
+      logText += `  [${time}] ${actionLabel}: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
+    });
+  }
+
+  logText += `================================================
+Report Compiled via Smart Task Manager Board.
+================================================`;
+
+  return logText;
+};
+
+
+// ==========================================================================
+// SUB-COMPONENTS (View Layer)
+// ==========================================================================
+
 function HeaderArea({ onClearHistory, showClear }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -41,9 +229,6 @@ function HeaderArea({ onClearHistory, showClear }) {
   );
 }
 
-/**
- * Empty state view shown when no logs exist.
- */
 function EmptyState() {
   return (
     <div className="glass-panel" style={{ textAlign: 'center', padding: '3.5rem 2rem', borderStyle: 'dashed' }}>
@@ -61,11 +246,8 @@ function EmptyState() {
   );
 }
 
-/**
- * Renders an individual event card in the timeline.
- */
-function TimelineItem({ log, formatTime, getActionStyles }) {
-  const styles = getActionStyles(log.action);
+function TimelineItem({ log }) {
+  const styles = ACTION_CONFIG[log.action] || DEFAULT_ACTION_STYLE;
   const categoryLower = log.category.toLowerCase();
   const categoryColor = `hsl(var(--color-${categoryLower}))`;
 
@@ -80,7 +262,6 @@ function TimelineItem({ log, formatTime, getActionStyles }) {
         background: 'rgba(255,255,255,0.01)',
       }}
     >
-      {/* Dot on axis */}
       <div 
         className="timeline-node"
         style={{ 
@@ -97,7 +278,6 @@ function TimelineItem({ log, formatTime, getActionStyles }) {
         }}
       />
 
-      {/* Status Icon Badge */}
       <div 
         style={{ 
           width: '28px', 
@@ -115,7 +295,6 @@ function TimelineItem({ log, formatTime, getActionStyles }) {
         {styles.icon}
       </div>
 
-      {/* Metadata Details */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'white', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
@@ -165,32 +344,24 @@ function TimelineItem({ log, formatTime, getActionStyles }) {
   );
 }
 
-/**
- * Timeline feed rendering grouped daily lists.
- */
-function TimelineFeed({ groupedHistory, formatDayHeader, formatTime, getActionStyles }) {
+function TimelineFeed({ groupedHistory }) {
   return (
     <div className="timeline-grouped-feed" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
       {groupedHistory.map(([dateStr, logs]) => (
         <div key={dateStr} className="daily-group" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           
-          {/* Daily Group Header */}
           <h3 className="timeline-day-header" style={{ fontSize: '0.9rem', fontWeight: 700, color: 'hsl(var(--primary))', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'hsl(var(--primary))' }} />
             {formatDayHeader(dateStr)}
           </h3>
 
-          {/* Sub timeline under this day */}
           <div style={{ position: 'relative', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Local axis vertical line */}
             <div style={{ position: 'absolute', top: '10px', bottom: '10px', left: '3px', width: '2px', background: 'rgba(255,255,255,0.03)' }} />
 
             {logs.map((log) => (
               <TimelineItem 
                 key={log.id} 
                 log={log} 
-                formatTime={formatTime} 
-                getActionStyles={getActionStyles} 
               />
             ))}
           </div>
@@ -201,14 +372,10 @@ function TimelineFeed({ groupedHistory, formatDayHeader, formatTime, getActionSt
   );
 }
 
-/**
- * Journal Compiler sidebar widget.
- */
 function JournalCompiler({
   selectedDate,
   setSelectedDate,
   availableDates,
-  formatDayHeader,
   currentJournalText,
   handleCopyJournal,
   copySuccess
@@ -311,62 +478,12 @@ function JournalCompiler({
 
 
 // ==========================================================================
-// MAIN CONTROLLER/VIEW COMPONENT
+// MAIN EXPORT VIEW
 // ==========================================================================
 
 export default function HistoryView({ history, onClearHistory }) {
   const [selectedDate, setSelectedDate] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
-
-  // Time format helper inside timeline items
-  const formatTime = (isoStr) => {
-    try {
-      const d = new Date(isoStr);
-      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return '';
-    }
-  };
-
-  // Date format helper for timeline headers
-  const formatDayHeader = (dateStr) => {
-    try {
-      const [year, month, day] = dateStr.split('-').map(Number);
-      const d = new Date(year, month - 1, day);
-      
-      const now = new Date();
-      const todayStr = now.toLocaleDateString('en-CA');
-      
-      const yesterday = new Date(now);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toLocaleDateString('en-CA');
-
-      const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-      const formattedDate = d.toLocaleDateString('en-US', options);
-
-      if (dateStr === todayStr) {
-        return `Today — ${formattedDate}`;
-      }
-      if (dateStr === yesterdayStr) {
-        return `Yesterday — ${formattedDate}`;
-      }
-      return formattedDate;
-    } catch {
-      return dateStr;
-    }
-  };
-
-  // Group logs dynamically by YYYY-MM-DD date string
-  const groupLogsByDay = (logs) => {
-    const groups = {};
-    logs.forEach((log) => {
-      if (!log.timestamp) return;
-      const dateStr = new Date(log.timestamp).toLocaleDateString('en-CA'); // YYYY-MM-DD
-      if (!groups[dateStr]) groups[dateStr] = [];
-      groups[dateStr].push(log);
-    });
-    return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
-  };
 
   const groupedHistory = groupLogsByDay(history);
   const availableDates = groupedHistory.map(([dateStr]) => dateStr);
@@ -378,76 +495,7 @@ export default function HistoryView({ history, onClearHistory }) {
     }
   }, [availableDates, selectedDate]);
 
-  // Generate Construction Log text report
-  const generateJournalLog = (dateStr) => {
-    if (!dateStr) return '';
-    const dayLogs = history.filter((l) => {
-      const logDate = new Date(l.timestamp).toLocaleDateString('en-CA');
-      return logDate === dateStr;
-    });
-
-    const [year, month, day] = dateStr.split('-').map(Number);
-    const dateObj = new Date(year, month - 1, day);
-    const dateDisplay = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-    let logText = `================================================
-DAILY SITE JOURNAL LOG - ${dateStr}
-================================================
-Generated on: ${new Date().toLocaleDateString()}
-Project Date: ${dateDisplay}
-Officer: Project Documentation Engineer
-
-------------------------------------------------
-1. COMPLETED ACTIONS & SIGN-OFFS
-------------------------------------------------\n`;
-
-    const completedActions = dayLogs.filter((l) => l.action === 'completed');
-    if (completedActions.length === 0) {
-      logText += `  [NIL] No documents signed off or tasks completed.\n`;
-    } else {
-      completedActions.forEach((l) => {
-        const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-        logText += `  [${time}] Completed: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
-      });
-    }
-
-    logText += `------------------------------------------------
-2. NEW CORRESPONDENCE & LOGGED ITEMS
-------------------------------------------------\n`;
-
-    const createdActions = dayLogs.filter((l) => l.action === 'created');
-    if (createdActions.length === 0) {
-      logText += `  [NIL] No new correspondence registered.\n`;
-    } else {
-      createdActions.forEach((l) => {
-        const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-        logText += `  [${time}] Registered: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
-      });
-    }
-
-    logText += `------------------------------------------------
-3. MODIFICATIONS & DELETIONS
-------------------------------------------------\n`;
-
-    const otherActions = dayLogs.filter((l) => l.action !== 'completed' && l.action !== 'created');
-    if (otherActions.length === 0) {
-      logText += `  [NIL] No document revisions or deletions recorded.\n`;
-    } else {
-      otherActions.forEach((l) => {
-        const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-        const actionLabel = l.action.toUpperCase();
-        logText += `  [${time}] ${actionLabel}: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
-      });
-    }
-
-    logText += `================================================
-Report Compiled via Smart Task Manager Board.
-================================================`;
-
-    return logText;
-  };
-
-  const currentJournalText = generateJournalLog(selectedDate);
+  const currentJournalText = generateJournalLog(selectedDate, history);
 
   const handleCopyJournal = () => {
     if (!currentJournalText) return;
@@ -455,79 +503,6 @@ Report Compiled via Smart Task Manager Board.
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     });
-  };
-
-  const getActionStyles = (action) => {
-    switch (action) {
-      case 'created':
-        return {
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          ),
-          color: '#10b981',
-          bg: 'rgba(16, 185, 129, 0.1)',
-          label: 'Registered'
-        };
-      case 'completed':
-        return {
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          ),
-          color: '#10b981',
-          bg: 'rgba(16, 185, 129, 0.15)',
-          label: 'Approved'
-        };
-      case 'reopened':
-        return {
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-            </svg>
-          ),
-          color: '#f59e0b',
-          bg: 'rgba(245, 158, 11, 0.12)',
-          label: 'Reopened'
-        };
-      case 'updated':
-        return {
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-            </svg>
-          ),
-          color: 'hsl(var(--primary))',
-          bg: 'rgba(139, 92, 246, 0.12)',
-          label: 'Revision'
-        };
-      case 'deleted':
-        return {
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-          ),
-          color: 'hsl(var(--danger))',
-          bg: 'rgba(239, 68, 68, 0.15)',
-          label: 'Archived'
-        };
-      default:
-        return {
-          icon: (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-            </svg>
-          ),
-          color: 'hsl(var(--text-secondary))',
-          bg: 'rgba(255, 255, 255, 0.05)',
-          label: 'Action'
-        };
-    }
   };
 
   if (history.length === 0) {
@@ -543,21 +518,16 @@ Report Compiled via Smart Task Manager Board.
     <div className="history-view-container glass-panel animate-fade-in" style={{ padding: '2rem' }}>
       <HeaderArea onClearHistory={onClearHistory} showClear={true} />
       
-      {/* Layout Grid: Left timeline, Right Export widget */}
       <div className="history-grid-layout" style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: '2.5rem', alignItems: 'start' }}>
         
         <TimelineFeed 
           groupedHistory={groupedHistory}
-          formatDayHeader={formatDayHeader}
-          formatTime={formatTime}
-          getActionStyles={getActionStyles}
         />
 
         <JournalCompiler
           selectedDate={selectedDate}
           setSelectedDate={setSelectedDate}
           availableDates={availableDates}
-          formatDayHeader={formatDayHeader}
           currentJournalText={currentJournalText}
           handleCopyJournal={handleCopyJournal}
           copySuccess={copySuccess}
