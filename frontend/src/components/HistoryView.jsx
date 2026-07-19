@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { formatTime, formatDayHeader } from '../utils/date';
+import { groupLogsByDay, generateJournalLog } from '../utils/history';
 
 // ==========================================================================
 // STATIC CONFIGURATIONS & STYLING METADATA
@@ -68,126 +70,6 @@ const DEFAULT_ACTION_STYLE = {
   color: 'hsl(var(--text-secondary))',
   bg: 'rgba(255, 255, 255, 0.05)',
   label: 'Action'
-};
-
-
-// ==========================================================================
-// FILE-SCOPE PURE HELPER UTILITIES
-// ==========================================================================
-
-const formatTime = (isoStr) => {
-  try {
-    const d = new Date(isoStr);
-    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  } catch {
-    return '';
-  }
-};
-
-const formatDayHeader = (dateStr) => {
-  try {
-    const [year, month, day] = dateStr.split('-').map(Number);
-    const d = new Date(year, month - 1, day);
-    
-    const now = new Date();
-    const todayStr = now.toLocaleDateString('en-CA');
-    
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toLocaleDateString('en-CA');
-
-    const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-    const formattedDate = d.toLocaleDateString('en-US', options);
-
-    if (dateStr === todayStr) {
-      return `Today — ${formattedDate}`;
-    }
-    if (dateStr === yesterdayStr) {
-      return `Yesterday — ${formattedDate}`;
-    }
-    return formattedDate;
-  } catch {
-    return dateStr;
-  }
-};
-
-const groupLogsByDay = (logs) => {
-  const groups = {};
-  logs.forEach((log) => {
-    if (!log.timestamp) return;
-    const dateStr = new Date(log.timestamp).toLocaleDateString('en-CA'); // YYYY-MM-DD
-    if (!groups[dateStr]) groups[dateStr] = [];
-    groups[dateStr].push(log);
-  });
-  return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
-};
-
-const generateJournalLog = (dateStr, history) => {
-  if (!dateStr) return '';
-  const dayLogs = history.filter((l) => {
-    const logDate = new Date(l.timestamp).toLocaleDateString('en-CA');
-    return logDate === dateStr;
-  });
-
-  const [year, month, day] = dateStr.split('-').map(Number);
-  const dateObj = new Date(year, month - 1, day);
-  const dateDisplay = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-  let logText = `================================================
-DAILY SITE JOURNAL LOG - ${dateStr}
-================================================
-Generated on: ${new Date().toLocaleDateString()}
-Project Date: ${dateDisplay}
-Officer: Project Documentation Engineer
-
-------------------------------------------------
-1. COMPLETED ACTIONS & SIGN-OFFS
-------------------------------------------------\n`;
-
-  const completedActions = dayLogs.filter((l) => l.action === 'completed');
-  if (completedActions.length === 0) {
-    logText += `  [NIL] No documents signed off or tasks completed.\n`;
-  } else {
-    completedActions.forEach((l) => {
-      const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-      logText += `  [${time}] Completed: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
-    });
-  }
-
-  logText += `------------------------------------------------
-2. NEW CORRESPONDENCE & LOGGED ITEMS
-------------------------------------------------\n`;
-
-  const createdActions = dayLogs.filter((l) => l.action === 'created');
-  if (createdActions.length === 0) {
-    logText += `  [NIL] No new correspondence registered.\n`;
-  } else {
-    createdActions.forEach((l) => {
-      const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-      logText += `  [${time}] Registered: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
-    });
-  }
-
-  logText += `------------------------------------------------
-3. MODIFICATIONS & DELETIONS
-------------------------------------------------\n`;
-
-  const otherActions = dayLogs.filter((l) => l.action !== 'completed' && l.action !== 'created');
-  if (otherActions.length === 0) {
-    logText += `  [NIL] No document revisions or deletions recorded.\n`;
-  } else {
-    otherActions.forEach((l) => {
-      const time = new Date(l.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-      const actionLabel = l.action.toUpperCase();
-      logText += `  [${time}] ${actionLabel}: "${l.todoTitle}" [Category: ${l.category}]\n  --> Details: ${l.details}\n\n`;
-    });
-  }
-
-  logText += `================================================
-Report Compiled via Smart Task Manager Board.
-================================================`;
-
-  return logText;
 };
 
 
@@ -478,7 +360,7 @@ function JournalCompiler({
 
 
 // ==========================================================================
-// MAIN EXPORT VIEW
+// MAIN EXPORT VIEW (MVC View Layer Component)
 // ==========================================================================
 
 export default function HistoryView({ history, onClearHistory }) {
@@ -488,7 +370,6 @@ export default function HistoryView({ history, onClearHistory }) {
   const groupedHistory = groupLogsByDay(history);
   const availableDates = groupedHistory.map(([dateStr]) => dateStr);
 
-  // Set default selected date to the most recent date with logs
   useEffect(() => {
     if (availableDates.length > 0 && !selectedDate) {
       setSelectedDate(availableDates[0]);

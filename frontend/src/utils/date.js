@@ -91,3 +91,45 @@ export const getGroupedTodos = (todos) => {
 
   return Object.values(groups).sort((a, b) => a.sortVal - b.sortVal);
 };
+
+/**
+ * Format timestamp (ISO string) into user-friendly time string (e.g. 10:45 AM)
+ */
+export const formatTime = (isoStr) => {
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * Format date string (YYYY-MM-DD) into user-friendly day headers (e.g. Today — Monday, Jul 20)
+ */
+export const formatDayHeader = (dateStr) => {
+  try {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const d = new Date(year, month - 1, day);
+    
+    const now = new Date();
+    const todayStr = now.toLocaleDateString('en-CA');
+    
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toLocaleDateString('en-CA');
+
+    const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
+    const formattedDate = d.toLocaleDateString('en-US', options);
+
+    if (dateStr === todayStr) {
+      return `Today — ${formattedDate}`;
+    }
+    if (dateStr === yesterdayStr) {
+      return `Yesterday — ${formattedDate}`;
+    }
+    return formattedDate;
+  } catch {
+    return dateStr;
+  }
+};
