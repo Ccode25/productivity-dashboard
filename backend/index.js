@@ -20,7 +20,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal Server Error.' });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Express server is running on http://localhost:${PORT}`);
-});
+// Start Server locally, export for serverless environments (Vercel)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Express server is running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
