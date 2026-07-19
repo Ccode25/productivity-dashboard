@@ -105,7 +105,16 @@ function TimelineItem({ log }) {
           flexShrink: 0
         }}
       >
-        {styles.icon}
+        <svg 
+          width="14" 
+          height="14" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth={styles.strokeWidth || 2.5}
+        >
+          {styles.icon}
+        </svg>
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
