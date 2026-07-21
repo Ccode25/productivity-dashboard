@@ -1,243 +1,157 @@
-// In-memory mock database store for Project Engineer handling construction documentation
-let todos = [
-  {
-    id: '1',
-    title: 'Submit Material Submittal for Structural Steel Coating',
-    description: 'Prepare and transmit manufacturer technical data sheets, test certifications, and sample mockups to architectural consultant for review.',
-    category: 'Submittals',
-    dueDate: new Date().toISOString().split('T')[0], // today
-    repeat: 'none',
-    completed: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-  },
-  {
-    id: '2',
-    title: 'Review Sector B Concrete Core Strength Test Reports',
-    description: 'Analyze laboratory compressive strength logs for 7-day and 28-day concrete cures in gridlines E-K. Confirm compliance with ASTM standards.',
-    category: 'Quality',
-    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // tomorrow
-    repeat: 'none',
-    completed: false,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '3',
-    title: 'Publish Daily Site Construction Activity Journal',
-    description: 'Record daily weather conditions, trade headcount, equipment utilization, material deliveries, and documented progress photos.',
-    category: 'Site Logs',
-    dueDate: new Date().toISOString().split('T')[0], // today
-    repeat: 'daily',
-    completed: false,
-    createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
-  },
-  {
-    id: '4',
-    title: 'Log RFI for Foundation Level Piping Clash',
-    description: 'Raise RFI to MEP consultant regarding piping clash between gravity drainage line and foundation beam #FB-12.',
-    category: 'RFIs',
-    dueDate: new Date(Date.now() - 86400000).toISOString().split('T')[0], // yesterday
-    repeat: 'none',
-    completed: true,
-    createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
-  },
-  {
-    id: '5',
-    title: 'Perform Weekly Site Safety Walkthrough and Safety Log',
-    description: 'Inspect site scaffolding, personal protective equipment (PPE) compliance, and fire protection equipment. Upload audit sheet.',
-    category: 'Safety',
-    dueDate: new Date(Date.now() + 172800000).toISOString().split('T')[0], // in 2 days
-    repeat: 'weekly',
-    completed: false,
-    createdAt: new Date().toISOString()
-  }
-];
-
-// In-memory activity history log for Project Engineer
-let history = [
-  {
-    id: 'h1',
-    todoId: '4',
-    action: 'created',
-    todoTitle: 'Log RFI for Foundation Level Piping Clash',
-    category: 'RFIs',
-    timestamp: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-    details: 'RFI draft initialized regarding foundation clash'
-  },
-  {
-    id: 'h2',
-    todoId: '4',
-    action: 'updated',
-    todoTitle: 'Log RFI for Foundation Level Piping Clash',
-    category: 'RFIs',
-    timestamp: new Date(Date.now() - 129600000).toISOString(), // 1.5 days ago
-    details: 'Piping shop drawings attached to RFI document'
-  },
-  {
-    id: 'h3',
-    todoId: '4',
-    action: 'completed',
-    todoTitle: 'Log RFI for Foundation Level Piping Clash',
-    category: 'RFIs',
-    timestamp: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    details: 'RFI transmitted to structural and MEP consultants'
-  },
-  {
-    id: 'h4',
-    todoId: '1',
-    action: 'created',
-    todoTitle: 'Submit Material Submittal for Structural Steel Coating',
-    category: 'Submittals',
-    timestamp: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    details: 'Submittal document compiled with technical data sheets'
-  },
-  {
-    id: 'h5',
-    todoId: '1',
-    action: 'completed',
-    todoTitle: 'Submit Material Submittal for Structural Steel Coating',
-    category: 'Submittals',
-    timestamp: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
-    details: 'Transmitted package approved with comments by architectural consultant'
-  },
-  {
-    id: 'h6',
-    todoId: '2',
-    action: 'created',
-    todoTitle: 'Review Sector B Concrete Core Strength Test Reports',
-    category: 'Quality',
-    timestamp: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-    details: 'Strength reports received from testing laboratory and logged for review'
-  }
-];
+const db = require('../db');
 
 /**
- * Add an event log to the history timeline
+ * Add an event log to the history_logs table in PostgreSQL
  */
-const addHistoryLog = (action, todo, details = '') => {
-  history.unshift({
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-    todoId: todo.id,
-    action,
-    todoTitle: todo.title,
-    category: todo.category || 'Other',
-    timestamp: new Date().toISOString(),
-    details: details || `Task ${action}`
-  });
+const addHistoryLog = async (userId, action, todo, details = '') => {
+  const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+  const todoTitle = todo.title;
+  const category = todo.category || 'Other';
+  const timestamp = new Date().toISOString();
+  const logDetails = details || `Task ${action}`;
+
+  await db.query(
+    `INSERT INTO history_logs (id, user_id, todo_id, action, todo_title, category, timestamp, details)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [id, userId, todo.id, action, todoTitle, category, timestamp, logDetails]
+  );
 };
 
 /**
- * Find all todos
+ * Find all todos for user from PostgreSQL
  */
-const findAll = async () => {
-  return todos;
+const findAll = async (userId = 'user_alex') => {
+  const result = await db.query(
+    `SELECT id, user_id as "userId", title, description, category, due_date as "dueDate", repeat, completed, created_at as "createdAt"
+     FROM todos
+     WHERE user_id = $1
+     ORDER BY created_at DESC`,
+    [userId]
+  );
+  return result.rows;
 };
 
 /**
- * Find a todo by ID
+ * Find a todo by ID for user from PostgreSQL
  */
-const findById = async (id) => {
-  return todos.find((t) => t.id === id);
+const findById = async (userId = 'user_alex', id) => {
+  const result = await db.query(
+    `SELECT id, user_id as "userId", title, description, category, due_date as "dueDate", repeat, completed, created_at as "createdAt"
+     FROM todos
+     WHERE user_id = $1 AND id = $2`,
+    [userId, id]
+  );
+  return result.rows[0] || null;
 };
 
 /**
- * Get all history logs
+ * Get history logs for user from PostgreSQL
  */
-const getHistory = async () => {
-  return history;
+const getHistory = async (userId = 'user_alex') => {
+  const result = await db.query(
+    `SELECT id, user_id as "userId", todo_id as "todoId", action, todo_title as "todoTitle", category, timestamp, details
+     FROM history_logs
+     WHERE user_id = $1
+     ORDER BY timestamp DESC`,
+    [userId]
+  );
+  return result.rows;
 };
 
 /**
- * Clear history logs
+ * Clear history logs for user from PostgreSQL
  */
-const clearHistory = async () => {
-  history = [];
+const clearHistory = async (userId = 'user_alex') => {
+  await db.query('DELETE FROM history_logs WHERE user_id = $1', [userId]);
   return true;
 };
 
 /**
- * Create a new todo
+ * Create a new todo for user in PostgreSQL
  */
-const create = async (todoData) => {
+const create = async (userId = 'user_alex', todoData) => {
   const { title, description, category, dueDate, repeat } = todoData;
-  const newTodo = {
-    id: Date.now().toString(),
-    title: title.trim(),
-    description: (description || '').trim(),
-    category: (category || 'Other').trim(),
-    dueDate: dueDate || '',
-    repeat: repeat || 'none',
-    completed: false,
-    createdAt: new Date().toISOString()
-  };
+  const id = Date.now().toString();
+  const cleanTitle = title.trim();
+  const cleanDesc = (description || '').trim();
+  const cleanCat = (category || 'Other').trim();
+  const due = dueDate || '';
+  const rep = repeat || 'none';
+  const createdAt = new Date().toISOString();
 
-  todos.unshift(newTodo);
-  addHistoryLog('created', newTodo, `Task created under category ${newTodo.category}`);
+  const result = await db.query(
+    `INSERT INTO todos (id, user_id, title, description, category, due_date, repeat, completed, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING id, user_id as "userId", title, description, category, due_date as "dueDate", repeat, completed, created_at as "createdAt"`,
+    [id, userId, cleanTitle, cleanDesc, cleanCat, due, rep, false, createdAt]
+  );
+
+  const newTodo = result.rows[0];
+  await addHistoryLog(userId, 'created', newTodo, `Task created under category ${newTodo.category}`);
   return newTodo;
 };
 
 /**
- * Update a todo.
- * Also handles automatic cloning of recurring tasks if completed is transitioned to true.
+ * Update a todo for user in PostgreSQL
  */
-const update = async (id, todoData) => {
-  const todoIndex = todos.findIndex((t) => t.id === id);
-  if (todoIndex === -1) return null;
+const update = async (userId = 'user_alex', id, todoData) => {
+  const existingTodo = await findById(userId, id);
+  if (!existingTodo) return null;
 
-  const existingTodo = todos[todoIndex];
-  
   const { title, description, category, dueDate, completed, repeat } = todoData;
 
-  const updatedTodo = {
-    ...existingTodo,
-    title: title !== undefined ? title.trim() : existingTodo.title,
-    description: description !== undefined ? description.trim() : existingTodo.description,
-    category: category !== undefined ? category.trim() : existingTodo.category,
-    dueDate: dueDate !== undefined ? dueDate : existingTodo.dueDate,
-    completed: completed !== undefined ? Boolean(completed) : existingTodo.completed,
-    repeat: repeat !== undefined ? repeat : existingTodo.repeat
-  };
+  const updatedTitle = title !== undefined ? title.trim() : existingTodo.title;
+  const updatedDesc = description !== undefined ? description.trim() : existingTodo.description;
+  const updatedCat = category !== undefined ? category.trim() : existingTodo.category;
+  const updatedDue = dueDate !== undefined ? dueDate : existingTodo.dueDate;
+  const updatedCompleted = completed !== undefined ? Boolean(completed) : existingTodo.completed;
+  const updatedRepeat = repeat !== undefined ? repeat : existingTodo.repeat;
 
   let newRecurringTodo = null;
 
-  // Schedule next recurring occurrence if checked off
-  if (updatedTodo.completed && !existingTodo.completed && updatedTodo.repeat && updatedTodo.repeat !== 'none') {
-    const baseDate = updatedTodo.dueDate ? new Date(updatedTodo.dueDate) : new Date();
+  if (updatedCompleted && !existingTodo.completed && updatedRepeat && updatedRepeat !== 'none') {
+    const baseDate = updatedDue ? new Date(updatedDue) : new Date();
     const nextDate = new Date(baseDate);
     
-    if (updatedTodo.repeat === 'daily') {
+    if (updatedRepeat === 'daily') {
       nextDate.setDate(nextDate.getDate() + 1);
-    } else if (updatedTodo.repeat === 'weekly') {
+    } else if (updatedRepeat === 'weekly') {
       nextDate.setDate(nextDate.getDate() + 7);
     }
     
     const nextDateStr = nextDate.toISOString().split('T')[0];
-    newRecurringTodo = {
-      id: (Date.now() + 1).toString(),
-      title: updatedTodo.title,
-      description: updatedTodo.description,
-      category: updatedTodo.category,
-      dueDate: nextDateStr,
-      repeat: updatedTodo.repeat,
-      completed: false,
-      createdAt: new Date().toISOString()
-    };
+    const newId = (Date.now() + 1).toString();
+    const createdAt = new Date().toISOString();
+
+    const recurringRes = await db.query(
+      `INSERT INTO todos (id, user_id, title, description, category, due_date, repeat, completed, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, user_id as "userId", title, description, category, due_date as "dueDate", repeat, completed, created_at as "createdAt"`,
+      [newId, userId, updatedTitle, updatedDesc, updatedCat, nextDateStr, updatedRepeat, false, createdAt]
+    );
+    newRecurringTodo = recurringRes.rows[0];
   }
 
-  todos[todoIndex] = updatedTodo;
+  const result = await db.query(
+    `UPDATE todos
+     SET title = $1, description = $2, category = $3, due_date = $4, repeat = $5, completed = $6
+     WHERE user_id = $7 AND id = $8
+     RETURNING id, user_id as "userId", title, description, category, due_date as "dueDate", repeat, completed, created_at as "createdAt"`,
+    [updatedTitle, updatedDesc, updatedCat, updatedDue, updatedRepeat, updatedCompleted, userId, id]
+  );
 
-  // Log completion/reopen/update status
+  const updatedTodo = result.rows[0];
+
   if (updatedTodo.completed && !existingTodo.completed) {
-    addHistoryLog('completed', updatedTodo, 'Task marked as completed');
+    await addHistoryLog(userId, 'completed', updatedTodo, 'Task marked as completed');
   } else if (!updatedTodo.completed && existingTodo.completed) {
-    addHistoryLog('reopened', updatedTodo, 'Task reopened');
+    await addHistoryLog(userId, 'reopened', updatedTodo, 'Task reopened');
   } else {
-    addHistoryLog('updated', updatedTodo, 'Task details updated');
+    await addHistoryLog(userId, 'updated', updatedTodo, 'Task details updated');
   }
 
-  // Unshift new recurring todo after saving updatedTodo to avoid index-shift issues
   if (newRecurringTodo) {
-    todos.unshift(newRecurringTodo);
-    addHistoryLog('created', newRecurringTodo, `Next recurring occurrence automatically scheduled (Due: ${newRecurringTodo.dueDate})`);
+    await addHistoryLog(userId, 'created', newRecurringTodo, `Next recurring occurrence automatically scheduled (Due: ${newRecurringTodo.dueDate})`);
   }
 
   return {
@@ -247,15 +161,14 @@ const update = async (id, todoData) => {
 };
 
 /**
- * Delete a todo
+ * Delete a todo for user from PostgreSQL
  */
-const remove = async (id) => {
-  const todoIndex = todos.findIndex((t) => t.id === id);
-  if (todoIndex === -1) return false;
+const remove = async (userId = 'user_alex', id) => {
+  const existingTodo = await findById(userId, id);
+  if (!existingTodo) return false;
 
-  const todo = todos[todoIndex];
-  todos.splice(todoIndex, 1);
-  addHistoryLog('deleted', todo, 'Task deleted from board');
+  await db.query('DELETE FROM todos WHERE user_id = $1 AND id = $2', [userId, id]);
+  await addHistoryLog(userId, 'deleted', existingTodo, 'Task deleted from board');
   return true;
 };
 

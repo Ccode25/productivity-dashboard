@@ -9,8 +9,12 @@ import { useTodos } from './hooks/useTodos';
 import DailySummaryView from './components/DailySummaryView';
 import ProductivityView from './components/ProductivityView';
 import HistoryView from './components/HistoryView';
+import LandingPage from './components/auth/LandingPage';
+import useAuth from './hooks/useAuth';
 
 export default function App() {
+  const { user } = useAuth();
+
   // Toast helpers
   const [toasts, setToasts] = useState([]);
 
@@ -34,8 +38,8 @@ export default function App() {
   // View mode switcher: 'board' or 'daily'
   const [viewMode, setViewMode] = useState('board');
 
-  // Load and manage todos via custom hook
-  const { todos, history, loading, error, load, create, toggleComplete, edit, remove, clearHistoryLogs } = useTodos(addToast);
+  // Load and manage todos via custom hook (passing current user)
+  const { todos, history, loading, error, load, create, toggleComplete, edit, remove, clearHistoryLogs } = useTodos(addToast, user);
 
   // Wrapper handlers that delegate to hook functions
   const handleAddTodo = async (taskData) => {
@@ -83,6 +87,23 @@ export default function App() {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
+  if (!user) {
+    return (
+      <>
+        <LandingPage />
+        <div className="toast-container">
+          {toasts.map(toast => (
+            <ToastNotification
+              key={toast.id}
+              toast={toast}
+              onClose={removeToast}
+            />
+          ))}
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="app-container">
       <Header />
@@ -99,74 +120,26 @@ export default function App() {
         />
       )}
 
-      {/* View Switcher Segmented Control */}
-      <div className="view-switcher-container">
-        <button 
-          className={`view-switcher-btn ${viewMode === 'board' ? 'active' : ''}`}
-          onClick={() => setViewMode('board')}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
-            <rect x="3" y="3" width="7" height="9" />
-            <rect x="14" y="3" width="7" height="5" />
-            <rect x="14" y="12" width="7" height="9" />
-            <rect x="3" y="16" width="7" height="5" />
-          </svg>
-          Board View
-        </button>
-        <button 
-          className={`view-switcher-btn ${viewMode === 'daily' ? 'active' : ''}`}
-          onClick={() => setViewMode('daily')}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-          Daily Review
-        </button>
-        <button 
-          className={`view-switcher-btn ${viewMode === 'productivity' ? 'active' : ''}`}
-          onClick={() => setViewMode('productivity')}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
-            <line x1="18" y1="20" x2="18" y2="10" />
-            <line x1="12" y1="20" x2="12" y2="4" />
-            <line x1="6" y1="20" x2="6" y2="14" />
-          </svg>
-          Productivity
-        </button>
-        <button 
-          className={`view-switcher-btn ${viewMode === 'history' ? 'active' : ''}`}
-          onClick={() => setViewMode('history')}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-          History
-        </button>
-      </div>
+      {/* Filter and View Switcher */}
+      <FilterBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
 
-      {/* Controls Bar (Search & Filters) - Hidden in Productivity & History Views */}
-      {viewMode !== 'productivity' && viewMode !== 'history' && (
-        <FilterBar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          categoryFilter={categoryFilter}
-          setCategoryFilter={setCategoryFilter}
-        />
-      )}
-
-      {/* Task List / Productivity / History Dashboard */}
+      {/* Main Content Areas */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '2rem', color: 'hsl(var(--text-secondary))' }}>
-          <p>Syncing task board...</p>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
+          <div className="spinner" style={{ width: '40px', height: '40px', margin: '0 auto 1rem auto', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: 'hsl(var(--primary))', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+          <p style={{ color: 'hsl(var(--text-secondary))', margin: 0, fontWeight: 500 }}>Syncing user tasks from backend...</p>
         </div>
       ) : error ? (
-        <div className="glass-panel" style={{ textAlign: 'center', borderColor: 'hsl(var(--danger) / 0.3)', padding: '2rem' }}>
+        <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
           <p style={{ color: 'hsl(var(--danger))', marginBottom: '1rem', fontWeight: 500 }}>{error}</p>
           <button className="btn btn-secondary" onClick={load}>Retry Connection</button>
         </div>
@@ -189,6 +162,8 @@ export default function App() {
           onDelete={handleDeleteTodo}
         />
       )}
+
+
 
       {/* Toast Alert Container */}
       <div className="toast-container">

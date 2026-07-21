@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchTodos, addTodo, updateTodo, deleteTodo, fetchHistory, clearHistory as apiClearHistory } from '../api/todos';
 
-
-export const useTodos = (addToast) => {
+export const useTodos = (addToast, user) => {
   const [todos, setTodos] = useState([]);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +17,10 @@ export const useTodos = (addToast) => {
   }, []);
 
   const load = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError('');
@@ -31,11 +34,12 @@ export const useTodos = (addToast) => {
     } finally {
       setLoading(false);
     }
-  }, [addToast, loadHistory]);
+  }, [addToast, loadHistory, user]);
 
+  // Re-fetch data whenever user session changes
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, user?.id]);
 
   const create = async (taskData) => {
     try {

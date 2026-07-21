@@ -1,0 +1,140 @@
+{
+  "users": [
+    {
+      "id": "user_reg_1784512921036",
+      "name": "Amira Daelo",
+      "email": "aerondaelo@gmail.com",
+      "password_hash": "$2b$10$3YYnxGmvjRQy/smudS4V3.rW4KLnB.7/1mmJkFd9so3TyGJdnyKni",
+      "role": "Developer",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=aerondaelo@gmail.com",
+      "is_email_verified": true,
+      "verification_code": null,
+      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfcmVnXzE3ODQ1MTI5MjEwMzYiLCJlbWFpbCI6ImFlcm9uZGFlbG9AZ21haWwuY29tIiwidG9rZW5UeXBlIjoicmVmcmVzaCIsImp0aSI6IjE3ODQ1MTM0MTUwMTNfY2x2bmFtNyIsImlhdCI6MTc4NDUxMzQxNSwiZXhwIjoxNzg1MTE4MjE1fQ.-p_8PstUbDDKdWYKk3h8AHWMPhqfufoN8kvKd_TS_dE",
+      "google_id": null,
+      "provider": "register",
+      "created_at": "2026-07-20T02:02:01.104Z",
+      "reset_token": null,
+      "reset_token_expires": null
+    },
+    {
+      "id": "user_reg_1784513265336",
+      "name": "Reset Test User",
+      "email": "test-reset-1784513265316@example.com",
+      "password_hash": "$2b$10$KRe2NQTJmVOLaydL3YplZeKDdYV8NK/fAoIrwdE2nIeC9acjKMeS6",
+      "role": "QA Engineer",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=test-reset-1784513265316@example.com",
+      "is_email_verified": true,
+      "verification_code": null,
+      "refresh_token": null,
+      "google_id": null,
+      "provider": "register",
+      "created_at": "2026-07-20T02:07:45.397Z",
+      "reset_token": "9bbf4745f87db41d41d898237354ef4ec35a02aa7c3cd75c578a34622d638a11",
+      "reset_token_expires": "2026-07-20T03:07:45.403Z"
+    },
+    {
+      "id": "user_reg_1784513284823",
+      "name": "Reset Test User",
+      "email": "test-reset-1784513284792@example.com",
+      "password_hash": "$2b$10$X9ohNbgroYShM1ANai.8de3sOqMh7taiZzNQecDPUJTodTIBqawhC",
+      "role": "QA Engineer",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=test-reset-1784513284792@example.com",
+      "is_email_verified": true,
+      "verification_code": null,
+      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfcmVnXzE3ODQ1MTMyODQ4MjMiLCJlbWFpbCI6InRlc3QtcmVzZXQtMTc4NDUxMzI4NDc5MkBleGFtcGxlLmNvbSIsInRva2VuVHlwZSI6InJlZnJlc2giLCJqdGkiOiIxNzg0NTEzMjg1MDE2X3hqdnEwZmUiLCJpYXQiOjE3ODQ1MTMyODUsImV4cCI6MTc4NTExODA4NX0.4QkbsAG7tZek0TfhzM-CCFcQDHtTALBzfEKJ8NQkraM",
+      "google_id": null,
+      "provider": "register",
+      "created_at": "2026-07-20T02:08:04.885Z",
+      "reset_token": null,
+      "reset_token_expires": null
+    }
+  ],
+  "todos": [
+    {
+      "id": "1784513521019",
+      "user_id": "user_reg_1784512921036",
+      "title": "Install 1T extra ssd to my PC",
+      "description": "I'll remove HP SSD and use it to my PC as extra Storage\nI'll replace HP SSD with smaller SSD",
+      "category": "Personal",
+      "due_date": "2026-07-20",
+      "repeat": "none",
+      "completed": false,
+      "created_at": "2026-07-20T02:12:01.019Z"
+    },
+    {
+      "id": "1784513521020",
+      "user_id": "user_reg_1784512921036",
+      "title": "Design AetherTasks Landing Page UI",
+      "description": "Create modern glassmorphic dashboard concepts with clean card layouts, dark backgrounds, and bright gradients.",
+      "category": "Design",
+      "due_date": "2026-07-19",
+      "repeat": "none",
+      "completed": true,
+      "created_at": "2026-07-19T10:15:00.000Z"
+    },
+    {
+      "id": "1784513521021",
+      "user_id": "user_reg_1784512921036",
+      "title": "Integrate JWT Refresh Token Rotation API",
+      "description": "Ensure backend issues fresh access token pairs upon refresh checks to maintain secure session status.",
+      "category": "Work",
+      "due_date": "2026-07-21",
+      "repeat": "none",
+      "completed": false,
+      "created_at": "2026-07-20T01:30:00.000Z"
+    },
+    {
+      "id": "1784513521022",
+      "user_id": "user_reg_1784512921036",
+      "title": "Cardio Workout - 30 Mins jogging",
+      "description": "Run on track to clear mind and refresh energy levels after programming session.",
+      "category": "Health",
+      "due_date": "2026-07-20",
+      "repeat": "daily",
+      "completed": true,
+      "created_at": "2026-07-20T06:00:00.000Z"
+    }
+  ],
+  "history_logs": [
+    {
+      "id": "1784513521019xyuqf",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521019",
+      "action": "created",
+      "todo_title": "Install 1T extra ssd to my PC",
+      "category": "Personal",
+      "timestamp": "2026-07-20T02:12:01.019Z",
+      "details": "Task created under category Personal"
+    },
+    {
+      "id": "1784513521020abcde",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521020",
+      "action": "completed",
+      "todo_title": "Design AetherTasks Landing Page UI",
+      "category": "Design",
+      "timestamp": "2026-07-19T11:45:00.000Z",
+      "details": "Task marked completed"
+    },
+    {
+      "id": "1784513521021fghij",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521021",
+      "action": "created",
+      "todo_title": "Integrate JWT Refresh Token Rotation API",
+      "category": "Work",
+      "timestamp": "2026-07-20T01:30:00.000Z",
+      "details": "Task created under category Work"
+    },
+    {
+      "id": "1784513521022klmno",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521022",
+      "action": "completed",
+      "todo_title": "Cardio Workout - 30 Mins jogging",
+      "category": "Health",
+      "timestamp": "2026-07-20T06:30:00.000Z",
+      "details": "Daily recurring task completed"
+    }
+  ]
+}
