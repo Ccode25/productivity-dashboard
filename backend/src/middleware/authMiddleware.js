@@ -1,4 +1,4 @@
-const { verifyAccessToken, findUserById } = require('../models/userModel');
+const authService = require('../services/authService');
 
 /**
  * Express middleware to authenticate API requests via Bearer Access Tokens.
@@ -11,13 +11,13 @@ const authMiddleware = async (req, res, next) => {
   }
 
   const token = authHeader.split(' ')[1];
-  const decoded = verifyAccessToken(token);
+  const decoded = authService.verifyAccessToken(token);
 
   if (!decoded) {
     return res.status(401).json({ error: 'Access token expired or invalid.', code: 'TOKEN_EXPIRED' });
   }
 
-  const user = await findUserById(decoded.id);
+  const user = await authService.getUserProfile(decoded.id);
   if (!user) {
     return res.status(401).json({ error: 'User account not found.', code: 'USER_NOT_FOUND' });
   }

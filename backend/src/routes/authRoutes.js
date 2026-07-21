@@ -1,38 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const {
-  findUserById,
-  createUserAccount,
-  verifyEmailCode,
-  loginWithEmailPassword,
-  rotateRefreshToken,
-  generateAccessToken,
-  generateRefreshToken,
-  getDemoUsers,
-  requestPasswordReset,
-  resetPassword
-} = require('../models/userModel');
+const authService = require('../services/authService');
+const userModel = require('../models/userModel');
 const authMiddleware = require('../middleware/authMiddleware');
+const {
+  validateRegisterMiddleware,
+  validateVerifyEmailMiddleware,
+  validateLoginMiddleware,
+  validateForgotPasswordMiddleware,
+  validateResetPasswordMiddleware
+} = require('../middleware/validate');
 
 /**
  * POST /api/auth/register
  * 1. Register Account -> Saves user & generates 6-digit Email Verification Code
  */
-router.post('/register', async (req, res) => {
+router.post('/register', validateRegisterMiddleware, async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-
-    if (!name || !name.trim()) {
-      return res.status(400).json({ error: 'Full name is required for account registration.' });
-    }
-    if (!email || !email.trim() || !email.includes('@')) {
-      return res.status(400).json({ error: 'A valid email address is required for registration.' });
-    }
-    if (!password || password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
-    }
-
-    const { user, verificationCode } = await createUserAccount(name, email, password, role);
+    const { user, verificationCode } = await authService.registerUser(name, email, password, role);
 
     return res.status(201).json({
       message: 'Account registered successfully! Please enter your 6-digit verification code.',
@@ -48,18 +34,10 @@ router.post('/register', async (req, res) => {
  * POST /api/auth/verify-email
  * 2. Verify Email -> Validates 6-digit code and marks account verified
  */
-router.post('/verify-email', async (req, res) => {
+router.post('/verify-email', validateVerifyEmailMiddleware, async (req, res) => {
   try {
     const { email, code } = req.body;
-
-    if (!email || !email.trim() || !email.includes('@')) {
-      return res.status(400).json({ error: 'Email address is required.' });
-    }
-    if (!code || !String(code).trim()) {
-      return res.status(400).json({ error: 'Verification code is required.' });
-    }
-
-    const result = await verifyEmailCode(email, code);
+    const result = await authService.verifyEmailCode(email, code);
     return res.json(result);
   } catch (err) {
     return res.status(400).json({ error: err.message });
@@ -70,19 +48,10 @@ router.post('/verify-email', async (req, res) => {
  * POST /api/auth/login
  * 3. Login -> Authenticates credentials & issues Access Token + Refresh Token
  */
-router.post('/login', async (req, res) => {
+router.post('/login', validateLoginMiddleware, async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !email.trim() || !email.includes('@')) {
-      return res.status(400).json({ error: 'Please enter a valid email address.' });
-    }
-    if (!password) {
-      return res.status(400).json({ error: 'Password is required.' });
-    }
-
-    const result = await loginWithEmailPassword(email, password);
-
+    const result = await authService.loginWithEmailPassword(email, password);
     return res.json(result);
   } catch (err) {
     return res.status(401).json({ error: err.message });
@@ -96,12 +65,10 @@ router.post('/login', async (req, res) => {
 router.post('/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
-
     if (!refreshToken) {
       return res.status(400).json({ error: 'Refresh token is required.' });
     }
-
-    const result = await rotateRefreshToken(refreshToken);
+    const result = await authService.rotateRefreshToken(refreshToken);
     return res.json(result);
   } catch (err) {
     return res.status(401).json({ error: err.message });
@@ -115,20 +82,8 @@ router.post('/refresh', async (req, res) => {
 router.post('/demo', async (req, res) => {
   try {
     const { userId } = req.body;
-    const user = await findUserById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: 'Demo user not found.' });
-    }
-
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-
-    return res.json({
-      accessToken,
-      refreshToken,
-      user
-    });
+    const result = await authService.loginDemoUser(userId);
+    return res.json(result);
   } catch (err) {
     return res.status(500).json({ error: 'Demo login error.' });
   }
@@ -140,7 +95,7 @@ router.post('/demo', async (req, res) => {
  */
 router.get('/demo-users', async (req, res) => {
   try {
-    const demoUsers = await getDemoUsers();
+    const demoUsers = await userModel.getDemoUsers();
     return res.json(demoUsers);
   } catch (err) {
     return res.status(500).json({ error: 'Failed to retrieve demo users.' });
@@ -158,13 +113,10 @@ router.get('/me', authMiddleware, (req, res) => {
 });
 
 // Forgot password: request reset token
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', validateForgotPasswordMiddleware, async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ error: 'Email address is required.' });
-    }
-    const { token, expiresAt } = await requestPasswordReset(email);
+    const { token, expiresAt } = await authService.requestPasswordReset(email);
     
     if (!token) {
       console.warn(`[AUTH] Password reset requested for unregistered/unverified email: ${email}`);
@@ -187,13 +139,10 @@ router.post('/forgot-password', async (req, res) => {
 });
 
 // Reset password using token
-router.post('/reset-password', async (req, res) => {
+router.post('/reset-password', validateResetPasswordMiddleware, async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-    if (!token || !newPassword) {
-      return res.status(400).json({ error: 'Token and new password are required.' });
-    }
-    const result = await resetPassword(token, newPassword);
+    const result = await authService.resetPassword(token, newPassword);
     return res.json(result);
   } catch (err) {
     return res.status(400).json({ error: err.message });

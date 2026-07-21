@@ -14,7 +14,10 @@ import {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(() => localStorage.getItem('accessToken') || '');
+  const [token, setToken] = useState(() => {
+    const t = localStorage.getItem('accessToken');
+    return t && t !== 'null' && t !== 'undefined' ? t : '';
+  });
   const [demoUsers, setDemoUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -36,7 +39,9 @@ export function AuthProvider({ children }) {
       const storedAccessToken = localStorage.getItem('accessToken');
       const storedRefreshToken = localStorage.getItem('refreshToken');
 
-      if (storedAccessToken) {
+      const isValidToken = (t) => t && t !== 'null' && t !== 'undefined';
+
+      if (isValidToken(storedAccessToken)) {
         try {
           const res = await fetchCurrentUser(storedAccessToken);
           setUser(res.user);
@@ -55,7 +60,7 @@ export function AuthProvider({ children }) {
             logout();
           }
         }
-      } else if (storedRefreshToken) {
+      } else if (isValidToken(storedRefreshToken)) {
         try {
           const refreshRes = await refreshSession(storedRefreshToken);
           saveAuthSession(refreshRes.accessToken, refreshRes.refreshToken, refreshRes.user);

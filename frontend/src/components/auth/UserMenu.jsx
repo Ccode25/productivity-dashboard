@@ -1,21 +1,68 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import useAuth from '../../hooks/useAuth';
 
 export default function UserMenu() {
   const { user, demoUsers, loginAsDemo, logout, setShowLoginModal } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState(null);
   const menuRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (!(event.target instanceof Node)) return;
+      if (
+        menuRef.current && !menuRef.current.contains(event.target) &&
+        (!dropdownRef.current || !dropdownRef.current.contains(event.target))
+      ) {
         setIsOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Update dropdown position
+  useEffect(() => {
+    if (isOpen && menuRef.current) {
+      const rect = menuRef.current.getBoundingClientRect();
+      const dropdownWidth = 260;
+      const margin = 16;
+      let calculatedRight = window.innerWidth - rect.right;
+
+      // Prevent clipping on the left
+      if (window.innerWidth - calculatedRight - dropdownWidth < margin) {
+        calculatedRight = window.innerWidth - dropdownWidth - margin;
+      }
+
+      // Prevent clipping on the right
+      if (calculatedRight < margin) {
+        calculatedRight = margin;
+      }
+
+      setDropdownPos({
+        top: rect.bottom + 8,
+        right: calculatedRight
+      });
+    }
+  }, [isOpen]);
+
+  // Close on scroll or resize to prevent detached dropdown
+  useEffect(() => {
+    const handleScrollResize = (e) => {
+      // Don't close if scrolling inside the dropdown itself
+      if (e.target instanceof Node && dropdownRef.current && dropdownRef.current.contains(e.target)) return;
+      if (isOpen) setIsOpen(false);
+    };
+    window.addEventListener('scroll', handleScrollResize, true);
+    window.addEventListener('resize', handleScrollResize);
+    return () => {
+      window.removeEventListener('scroll', handleScrollResize, true);
+      window.removeEventListener('resize', handleScrollResize);
+    };
+  }, [isOpen]);
 
   if (!user) {
     return (
@@ -97,16 +144,17 @@ export default function UserMenu() {
       </button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
+      {isOpen && dropdownPos && createPortal(
         <div
+          ref={dropdownRef}
           className="glass-panel"
           style={{
-            position: 'absolute',
-            right: 0,
-            top: 'calc(100% + 0.5rem)',
+            position: 'fixed',
+            right: dropdownPos.right,
+            top: dropdownPos.top,
             width: '260px',
             padding: '0.75rem',
-            zIndex: 1000,
+            zIndex: 9999,
             boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
             border: '1px solid rgba(255,255,255,0.1)'
           }}
@@ -149,7 +197,8 @@ export default function UserMenu() {
               Sign Out Session
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

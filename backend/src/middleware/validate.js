@@ -31,7 +31,6 @@ const validateTodo = (data) => {
 const validateTodoMiddleware = (req, res, next) => {
   const { title, description, category, repeat } = req.body;
   
-  // Only validate attributes if they are present in the request body (handles both partial PUT and complete POST)
   const validationErrors = validateTodo({ title, description, category, repeat });
   
   if (validationErrors.length > 0) {
@@ -41,6 +40,91 @@ const validateTodoMiddleware = (req, res, next) => {
   next();
 };
 
+/**
+ * Express middleware to validate registration payloads.
+ */
+const validateRegisterMiddleware = (req, res, next) => {
+  const { name, email, password } = req.body;
+  
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'Full name is required for account registration.' });
+  }
+  if (!email || !email.trim() || !email.includes('@')) {
+    return res.status(400).json({ error: 'A valid email address is required for registration.' });
+  }
+  if (!password || password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+  }
+  
+  next();
+};
+
+/**
+ * Express middleware to validate email and code for verification.
+ */
+const validateVerifyEmailMiddleware = (req, res, next) => {
+  const { email, code } = req.body;
+  
+  if (!email || !email.trim() || !email.includes('@')) {
+    return res.status(400).json({ error: 'Email address is required.' });
+  }
+  if (!code || !String(code).trim()) {
+    return res.status(400).json({ error: 'Verification code is required.' });
+  }
+  
+  next();
+};
+
+/**
+ * Express middleware to validate login payloads.
+ */
+const validateLoginMiddleware = (req, res, next) => {
+  const { email, password } = req.body;
+  
+  if (!email || !email.trim() || !email.includes('@')) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' });
+  }
+  if (!password) {
+    return res.status(400).json({ error: 'Password is required.' });
+  }
+  
+  next();
+};
+
+/**
+ * Express middleware to validate password reset request payloads.
+ */
+const validateForgotPasswordMiddleware = (req, res, next) => {
+  const { email } = req.body;
+  
+  if (!email || !email.trim() || !email.includes('@')) {
+    return res.status(400).json({ error: 'Email address is required.' });
+  }
+  
+  next();
+};
+
+/**
+ * Express middleware to validate password reset payloads.
+ */
+const validateResetPasswordMiddleware = (req, res, next) => {
+  const { token, newPassword } = req.body;
+  
+  if (!token) {
+    return res.status(400).json({ error: 'Reset token is required.' });
+  }
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({ error: 'Token and new password (min 6 characters) are required.' });
+  }
+  
+  next();
+};
+
 module.exports = {
-  validateTodoMiddleware
+  validateTodoMiddleware,
+  validateRegisterMiddleware,
+  validateVerifyEmailMiddleware,
+  validateLoginMiddleware,
+  validateForgotPasswordMiddleware,
+  validateResetPasswordMiddleware
 };

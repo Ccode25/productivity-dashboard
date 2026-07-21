@@ -11,22 +11,12 @@ export default function LandingPage() {
         alignItems: 'center',
         justifyContent: 'center',
         background: 'radial-gradient(circle at top right, rgba(139, 92, 246, 0.15) 0%, rgba(0, 0, 0, 0) 50%), radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.1) 0%, rgba(0, 0, 0, 0) 50%)',
-        padding: '2rem 1.5rem',
         color: 'white',
         boxSizing: 'border-box'
       }}
+      className="landing-padding"
     >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '1000px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1.1fr',
-          gap: '3rem',
-          alignItems: 'center'
-        }}
-        className="landing-grid-responsive"
-      >
+      <div className="landing-grid-responsive">
         {/* Left Side: Pitch and Branding */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div>

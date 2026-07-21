@@ -130,9 +130,9 @@ export default function TaskItem({ todo, onToggleComplete, onEdit, onDelete, var
             <span>{dueDate ? (overdue ? `Overdue: ${formatTodoDate(dueDate)}` : `Due: ${formatTodoDate(dueDate)}`) : 'No Due Date'}</span>
           </div>
           {repeat && repeat !== 'none' && (
-            <div className="meta-item repeat-badge" style={{ color: 'hsl(var(--primary))', gap: '0.25rem' }}>
-              <RepeatIcon size={12} />
-              <span style={{ textTransform: 'capitalize', fontSize: '0.75rem', fontWeight: 600 }}>{repeat}</span>
+            <div className="meta-item repeat-badge">
+              <RepeatIcon size={14} />
+              <span style={{ textTransform: 'capitalize', fontWeight: 600 }}>{repeat}</span>
             </div>
           )}
         </div>

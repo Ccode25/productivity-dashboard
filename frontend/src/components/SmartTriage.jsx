@@ -18,7 +18,7 @@ export default function SmartTriage({ todos, onEdit, onToggleComplete }) {
         <div className="triage-suggestion animate-fade-in">
           <div className="triage-header">
             <h4>Here is your priority task:</h4>
-            <Button variant="icon" onClick={() => setShowSuggestion(false)} title="Hide">
+            <Button variant="icon" className="triage-close-btn" onClick={() => setShowSuggestion(false)} title="Hide">
               ✕
             </Button>
           </div>

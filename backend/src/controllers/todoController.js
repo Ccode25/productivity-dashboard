@@ -1,4 +1,5 @@
 const todoModel = require('../models/todoModel');
+const todoService = require('../services/todoService');
 
 /**
  * GET /api/todos
@@ -21,11 +22,9 @@ const createTodo = async (req, res) => {
   try {
     const { title, description, category, dueDate, priority, repeat } = req.body;
     
-    if (!title || title.trim() === '') {
-      return res.status(400).json({ error: 'Validation failed', details: ['Title is required and must be a string.'] });
-    }
+    // Validation is now fully handled by validateTodoMiddleware
 
-    const newTodo = await todoModel.create(req.userId, {
+    const newTodo = await todoService.createTodo(req.userId, {
       title,
       description,
       category,
@@ -54,7 +53,7 @@ const updateTodo = async (req, res) => {
       return res.status(404).json({ error: `Todo with ID ${id} not found.` });
     }
 
-    const result = await todoModel.update(req.userId, id, {
+    const result = await todoService.updateTodo(req.userId, id, {
       title,
       description,
       category,
@@ -96,7 +95,7 @@ const deleteTodo = async (req, res) => {
       return res.status(404).json({ error: `Todo with ID ${id} not found.` });
     }
 
-    const success = await todoModel.remove(req.userId, id);
+    const success = await todoService.deleteTodo(req.userId, id);
     if (!success) {
       return res.status(404).json({ error: `Todo with ID ${id} not found.` });
     }
