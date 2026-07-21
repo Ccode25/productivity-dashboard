@@ -9,7 +9,7 @@
       "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=aerondaelo@gmail.com",
       "is_email_verified": true,
       "verification_code": null,
-      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfcmVnXzE3ODQ1MTI5MjEwMzYiLCJlbWFpbCI6ImFlcm9uZGFlbG9AZ21haWwuY29tIiwidG9rZW5UeXBlIjoicmVmcmVzaCIsImp0aSI6IjE3ODQ1MTM0MTUwMTNfY2x2bmFtNyIsImlhdCI6MTc4NDUxMzQxNSwiZXhwIjoxNzg1MTE4MjE1fQ.-p_8PstUbDDKdWYKk3h8AHWMPhqfufoN8kvKd_TS_dE",
+      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXJfcmVnXzE3ODQ1MTI5MjEwMzYiLCJlbWFpbCI6ImFlcm9uZGFlbG9AZ21haWwuY29tIiwidG9rZW5UeXBlIjoicmVmcmVzaCIsImp0aSI6IjE3ODQ2MDYzMDEwMTlfOGQ0NnEyNyIsImlhdCI6MTc4NDYwNjMwMSwiZXhwIjoxNzg1MjExMTAxfQ.S3LQz9_Z9fctQSlTqS-1janh4Pk-c5nzSxcakAmHUUs",
       "google_id": null,
       "provider": "register",
       "created_at": "2026-07-20T02:02:01.104Z",
@@ -51,15 +51,73 @@
   ],
   "todos": [
     {
+      "id": "1784605460038",
+      "user_id": "user_reg_1784512921036",
+      "title": "bdfgeg",
+      "description": "ggdfgdfgfdgd",
+      "category": "Personal",
+      "due_date": "2026-07-31",
+      "priority": "medium",
+      "repeat": "weekly",
+      "completed": false,
+      "created_at": "2026-07-21T03:44:20.037Z"
+    },
+    {
+      "id": "1784600771019",
+      "user_id": "user_reg_1784512921036",
+      "title": "bdfgeg",
+      "description": "ggdfgdfgfdgd",
+      "category": "Personal",
+      "due_date": "2026-07-24",
+      "repeat": "weekly",
+      "completed": true,
+      "created_at": "2026-07-21T02:26:11.019Z",
+      "priority": "medium"
+    },
+    {
+      "id": "1784600477985",
+      "user_id": "user_reg_1784512921036",
+      "title": "fcasds",
+      "description": "asdasdas",
+      "category": "Work",
+      "due_date": "2026-07-22",
+      "repeat": "none",
+      "completed": true,
+      "created_at": "2026-07-21T02:21:17.985Z",
+      "priority": "medium"
+    },
+    {
+      "id": "1784600435822",
+      "user_id": "user_reg_1784512921036",
+      "title": "dwddqw",
+      "description": "sdwqdwdd",
+      "category": "Work",
+      "repeat": "none",
+      "completed": true,
+      "created_at": "2026-07-21T02:20:35.822Z"
+    },
+    {
+      "id": "1784599625909",
+      "user_id": "user_reg_1784512921036",
+      "title": "Install New OS to old PC",
+      "description": "I check old pc unit and install Zorin or any lightweight OS for better performance",
+      "category": "Personal",
+      "due_date": "2026-07-22",
+      "repeat": "none",
+      "completed": true,
+      "created_at": "2026-07-21T02:07:05.909Z",
+      "priority": "medium"
+    },
+    {
       "id": "1784513521019",
       "user_id": "user_reg_1784512921036",
       "title": "Install 1T extra ssd to my PC",
       "description": "I'll remove HP SSD and use it to my PC as extra Storage\nI'll replace HP SSD with smaller SSD",
       "category": "Personal",
-      "due_date": "2026-07-20",
       "repeat": "none",
-      "completed": false,
-      "created_at": "2026-07-20T02:12:01.019Z"
+      "completed": true,
+      "created_at": "2026-07-20T02:12:01.019Z",
+      "priority": "medium"
     },
     {
       "id": "1784513521020",
@@ -80,8 +138,9 @@
       "category": "Work",
       "due_date": "2026-07-21",
       "repeat": "none",
-      "completed": false,
-      "created_at": "2026-07-20T01:30:00.000Z"
+      "completed": true,
+      "created_at": "2026-07-20T01:30:00.000Z",
+      "priority": "medium"
     },
     {
       "id": "1784513521022",
@@ -96,6 +155,264 @@
     }
   ],
   "history_logs": [
+    {
+      "id": "1784605460039c64sg",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784605460038",
+      "action": "created",
+      "todo_title": "bdfgeg",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:44:20.039Z",
+      "details": "Next recurring occurrence automatically scheduled (Due: 2026-07-31)",
+      "changes": "[]",
+      "snapshot": null
+    },
+    {
+      "id": "1784605460038tgvu2",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600771019",
+      "action": "completed",
+      "todo_title": "bdfgeg",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:44:20.038Z",
+      "details": "Task completed",
+      "changes": "[]",
+      "snapshot": "{\"priority\":\"medium\",\"status\":\"Completed\",\"description\":\"ggdfgdfgfdgd\"}"
+    },
+    {
+      "id": "1784605458317ke5xp",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600477985",
+      "action": "completed",
+      "todo_title": "fcasds",
+      "category": "Work",
+      "timestamp": "2026-07-21T03:44:18.317Z",
+      "details": "Task completed",
+      "changes": "[]",
+      "snapshot": "{\"priority\":\"medium\",\"status\":\"Completed\",\"description\":\"asdasdas\"}"
+    },
+    {
+      "id": "1784605457302xvj5e",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784599625909",
+      "action": "completed",
+      "todo_title": "Install New OS to old PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:44:17.302Z",
+      "details": "Task completed",
+      "changes": "[]",
+      "snapshot": "{\"priority\":\"medium\",\"status\":\"Completed\",\"description\":\"I check old pc unit and install Zorin or any lightweight OS for better performance\"}"
+    },
+    {
+      "id": "17846042878455t1ly",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521019",
+      "action": "completed",
+      "todo_title": "Install 1T extra ssd to my PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:24:47.845Z",
+      "details": "Task completed"
+    },
+    {
+      "id": "1784604246776fgudj",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784599625909",
+      "action": "reopened",
+      "todo_title": "Install New OS to old PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:24:06.776Z",
+      "details": "Task reopened"
+    },
+    {
+      "id": "1784604245830do2vn",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521019",
+      "action": "reopened",
+      "todo_title": "Install 1T extra ssd to my PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:24:05.830Z",
+      "details": "Task reopened"
+    },
+    {
+      "id": "1784604189053u4idy",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600435822",
+      "action": "deleted",
+      "todo_title": "dwddqw",
+      "category": "Work",
+      "timestamp": "2026-07-21T03:23:09.053Z",
+      "details": "Task deleted from board (Category: Work, Priority: medium)"
+    },
+    {
+      "id": "178460418502920515",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600477985",
+      "action": "deleted",
+      "todo_title": "fcasds",
+      "category": "Work",
+      "timestamp": "2026-07-21T03:23:05.029Z",
+      "details": "Task deleted from board (Category: Work, Priority: medium, Due: 2026-07-22)"
+    },
+    {
+      "id": "1784604184789o8m15",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600771019",
+      "action": "deleted",
+      "todo_title": "bdfgeg",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:23:04.790Z",
+      "details": "Task deleted from board (Category: Personal, Priority: medium, Due: 2026-07-24)"
+    },
+    {
+      "id": "1784603901808ab6q0",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784599625909",
+      "action": "completed",
+      "todo_title": "Install New OS to old PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:18:21.808Z",
+      "details": "Task marked as completed (Priority: medium)"
+    },
+    {
+      "id": "1784603411939w6844",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600435822",
+      "action": "deleted",
+      "todo_title": "dwddqw",
+      "category": "Work",
+      "timestamp": "2026-07-21T03:10:11.939Z",
+      "details": "Task deleted from board (Category: Work, Priority: medium)"
+    },
+    {
+      "id": "1784603409307kp550",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600477985",
+      "action": "deleted",
+      "todo_title": "fcasds",
+      "category": "Work",
+      "timestamp": "2026-07-21T03:10:09.307Z",
+      "details": "Task deleted from board (Category: Work, Priority: medium, Due: 2026-07-22)"
+    },
+    {
+      "id": "1784603408872xbrxz",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600771019",
+      "action": "deleted",
+      "todo_title": "bdfgeg",
+      "category": "Personal",
+      "timestamp": "2026-07-21T03:10:08.873Z",
+      "details": "Task deleted from board (Category: Personal, Priority: medium, Due: 2026-07-24)"
+    },
+    {
+      "id": "1784602544798jss5j",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784599625909",
+      "action": "updated",
+      "todo_title": "Install New OS to old PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T02:55:44.798Z",
+      "details": "Task details updated: Category: Personal, Priority: medium, Due: 2026-07-22, Desc: \"I check old pc unit and install Zorin or any lightweight OS for better performance\""
+    },
+    {
+      "id": "1784601865843zgczt",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521021",
+      "action": "completed",
+      "todo_title": "Integrate JWT Refresh Token Rotation API",
+      "category": "Work",
+      "timestamp": "2026-07-21T02:44:25.843Z",
+      "details": "Task marked as completed (Priority: medium)"
+    },
+    {
+      "id": "1784600771020tu7a5",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600771019",
+      "action": "created",
+      "todo_title": "bdfgeg",
+      "category": "Personal",
+      "timestamp": "2026-07-21T02:26:11.020Z",
+      "details": "Task created under category Personal"
+    },
+    {
+      "id": "1784600536765b97oe",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600477985",
+      "action": "deleted",
+      "todo_title": "fcasds",
+      "category": "Work",
+      "timestamp": "2026-07-21T02:22:16.765Z",
+      "details": "Task deleted from board"
+    },
+    {
+      "id": "178460047798695y6j",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600477985",
+      "action": "created",
+      "todo_title": "fcasds",
+      "category": "Work",
+      "timestamp": "2026-07-21T02:21:17.986Z",
+      "details": "Task created under category Work"
+    },
+    {
+      "id": "1784600447343krf8w",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600435822",
+      "action": "completed",
+      "todo_title": "dwddqw",
+      "category": "Work",
+      "timestamp": "2026-07-21T02:20:47.343Z",
+      "details": "Task marked as completed"
+    },
+    {
+      "id": "1784600435823z9v1i",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784600435822",
+      "action": "created",
+      "todo_title": "dwddqw",
+      "category": "Work",
+      "timestamp": "2026-07-21T02:20:35.823Z",
+      "details": "Task created under category Work"
+    },
+    {
+      "id": "17846002062729tvga",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521019",
+      "action": "completed",
+      "todo_title": "Install 1T extra ssd to my PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T02:16:46.272Z",
+      "details": "Task marked as completed"
+    },
+    {
+      "id": "1784600205191rcoid",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521019",
+      "action": "reopened",
+      "todo_title": "Install 1T extra ssd to my PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T02:16:45.191Z",
+      "details": "Task reopened"
+    },
+    {
+      "id": "1784600036726o6hdf",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784513521019",
+      "action": "completed",
+      "todo_title": "Install 1T extra ssd to my PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T02:13:56.726Z",
+      "details": "Task marked as completed"
+    },
+    {
+      "id": "1784599625910bv1mx",
+      "user_id": "user_reg_1784512921036",
+      "todo_id": "1784599625909",
+      "action": "created",
+      "todo_title": "Install New OS to old PC",
+      "category": "Personal",
+      "timestamp": "2026-07-21T02:07:05.910Z",
+      "details": "Task created under category Personal"
+    },
     {
       "id": "1784513521019xyuqf",
       "user_id": "user_reg_1784512921036",
@@ -136,5 +453,7 @@
       "timestamp": "2026-07-20T06:30:00.000Z",
       "details": "Daily recurring task completed"
     }
-  ]
+  ],
+  "daily_journals": [],
+  "task_comments": []
 }

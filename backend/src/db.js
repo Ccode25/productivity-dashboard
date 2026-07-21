@@ -11,14 +11,20 @@ const path = require('path');
 const dbFilePath = path.join(__dirname, 'local_db.json');
 
 const loadLocalStore = () => {
+  let data = { users: [], todos: [], history_logs: [], daily_journals: [], task_comments: [] };
   if (fs.existsSync(dbFilePath)) {
     try {
-      return JSON.parse(fs.readFileSync(dbFilePath, 'utf8'));
+      const parsed = JSON.parse(fs.readFileSync(dbFilePath, 'utf8'));
+      data = { ...data, ...parsed };
+      
+      // Ensure missing arrays are initialized
+      data.daily_journals = data.daily_journals || [];
+      data.task_comments = data.task_comments || [];
     } catch (e) {
       console.error('Failed to parse local_db.json, starting fresh:', e);
     }
   }
-  return { users: [], todos: [], history_logs: [] };
+  return data;
 };
 
 const saveLocalStore = (store) => {
@@ -35,7 +41,8 @@ if (connectionString) {
   try {
     const sql = neon(connectionString);
     queryFn = async (text, params = []) => {
-      const result = await sql(text, params);
+      // Use sql.query as per the Neon notice for conventional function calls
+      const result = await sql.query(text, params);
       return { rows: result };
     };
     isNeonDatabase = true;
@@ -120,15 +127,30 @@ if (!queryFn) {
 
     // 3. TODOS Queries
     if (cleanText.includes('FROM todos')) {
+      const mapTodo = (t) => {
+        if (!t) return null;
+        return {
+          id: t.id,
+          userId: t.user_id,
+          title: t.title,
+          description: t.description,
+          category: t.category,
+          dueDate: t.due_date,
+          priority: t.priority || 'medium',
+          repeat: t.repeat,
+          completed: t.completed,
+          createdAt: t.created_at
+        };
+      };
       if (cleanText.includes('WHERE user_id = $1 AND id = $2')) {
         const t = localStore.todos.find(x => x.user_id === params[0] && x.id === params[1]);
-        return { rows: t ? [t] : [] };
+        return { rows: t ? [mapTodo(t)] : [] };
       }
       if (cleanText.includes('WHERE user_id = $1')) {
         const list = localStore.todos.filter(x => x.user_id === params[0]);
-        return { rows: list };
+        return { rows: list.map(mapTodo) };
       }
-      return { rows: localStore.todos };
+      return { rows: localStore.todos.map(mapTodo) };
     }
 
     if (cleanText.startsWith('INSERT INTO todos')) {
@@ -139,16 +161,29 @@ if (!queryFn) {
         description: params[3],
         category: params[4],
         due_date: params[5],
-        repeat: params[6],
-        completed: params[7],
-        created_at: params[8] || new Date().toISOString()
+        priority: params[6] || 'medium',
+        repeat: params[7],
+        completed: params[8],
+        created_at: params[9] || new Date().toISOString()
       };
       localStore.todos.unshift(newTodo);
-      return { rows: [newTodo] };
+      const mapped = {
+        id: newTodo.id,
+        userId: newTodo.user_id,
+        title: newTodo.title,
+        description: newTodo.description,
+        category: newTodo.category,
+        dueDate: newTodo.due_date,
+        priority: newTodo.priority,
+        repeat: newTodo.repeat,
+        completed: newTodo.completed,
+        createdAt: newTodo.created_at
+      };
+      return { rows: [mapped] };
     }
 
     if (cleanText.startsWith('UPDATE todos')) {
-      const index = localStore.todos.findIndex(x => x.user_id === params[6] && x.id === params[7]);
+      const index = localStore.todos.findIndex(x => x.user_id === params[7] && x.id === params[8]);
       if (index !== -1) {
         localStore.todos[index] = {
           ...localStore.todos[index],
@@ -156,10 +191,24 @@ if (!queryFn) {
           description: params[1],
           category: params[2],
           due_date: params[3],
-          repeat: params[4],
-          completed: params[5]
+          priority: params[4] || 'medium',
+          repeat: params[5],
+          completed: params[6]
         };
-        return { rows: [localStore.todos[index]] };
+        const updated = localStore.todos[index];
+        const mapped = {
+          id: updated.id,
+          userId: updated.user_id,
+          title: updated.title,
+          description: updated.description,
+          category: updated.category,
+          dueDate: updated.due_date,
+          priority: updated.priority,
+          repeat: updated.repeat,
+          completed: updated.completed,
+          createdAt: updated.created_at
+        };
+        return { rows: [mapped] };
       }
       return { rows: [] };
     }
@@ -200,11 +249,26 @@ if (!queryFn) {
 
     // 4. HISTORY LOGS Queries
     if (cleanText.includes('FROM history_logs')) {
+      const mapLog = (l) => {
+        if (!l) return null;
+        return {
+          id: l.id,
+          userId: l.user_id,
+          todoId: l.todo_id,
+          action: l.action,
+          todoTitle: l.todo_title,
+          category: l.category,
+          timestamp: l.timestamp,
+          details: l.details,
+          changes: l.changes,
+          snapshot: l.snapshot
+        };
+      };
       if (cleanText.includes('WHERE user_id = $1')) {
         const list = localStore.history_logs.filter(x => x.user_id === params[0]);
-        return { rows: list };
+        return { rows: list.map(mapLog) };
       }
-      return { rows: localStore.history_logs };
+      return { rows: localStore.history_logs.map(mapLog) };
     }
 
     if (cleanText.startsWith('INSERT INTO history_logs')) {
@@ -216,15 +280,82 @@ if (!queryFn) {
         todo_title: params[4],
         category: params[5],
         timestamp: params[6],
-        details: params[7]
+        details: params[7],
+        changes: params[8],
+        snapshot: params[9]
       };
       localStore.history_logs.unshift(newLog);
-      return { rows: [newLog] };
+      const mapped = {
+        id: newLog.id,
+        userId: newLog.user_id,
+        todoId: newLog.todo_id,
+        action: newLog.action,
+        todoTitle: newLog.todo_title,
+        category: newLog.category,
+        timestamp: newLog.timestamp,
+        details: newLog.details,
+        changes: newLog.changes,
+        snapshot: newLog.snapshot
+      };
+      return { rows: [mapped] };
     }
 
     if (cleanText.startsWith('DELETE FROM history_logs')) {
       localStore.history_logs = localStore.history_logs.filter(x => x.user_id !== params[0]);
       return { rows: [] };
+    }
+
+    // 5. DAILY JOURNALS Queries
+    if (cleanText.includes('FROM daily_journals')) {
+      if (cleanText.includes('WHERE user_id = $1')) {
+        const list = localStore.daily_journals.filter(x => x.user_id === params[0]);
+        // Sort descending by created_at
+        list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        return { rows: list };
+      }
+      return { rows: localStore.daily_journals };
+    }
+
+    if (cleanText.startsWith('INSERT INTO daily_journals')) {
+      const newJournal = {
+        id: params[0],
+        user_id: params[1],
+        project_name: params[2],
+        objective: params[3],
+        work_performed: params[4],
+        progress_summary: params[5],
+        issues_encountered: params[6],
+        resolution: params[7],
+        materials_used: params[8],
+        time_spent: params[9],
+        lessons_learned: params[10],
+        next_action: params[11],
+        created_at: params[12] || new Date().toISOString()
+      };
+      localStore.daily_journals.unshift(newJournal);
+      return { rows: [newJournal] };
+    }
+
+    // 6. TASK COMMENTS Queries
+    if (cleanText.includes('FROM task_comments')) {
+      if (cleanText.includes('WHERE task_id = $1')) {
+        const list = localStore.task_comments.filter(x => x.task_id === params[0]);
+        list.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        return { rows: list };
+      }
+      return { rows: localStore.task_comments };
+    }
+
+    if (cleanText.startsWith('INSERT INTO task_comments')) {
+      const newComment = {
+        id: params[0],
+        task_id: params[1],
+        user_id: params[2],
+        comment_text: params[3],
+        created_at: params[4] || new Date().toISOString()
+      };
+      localStore.task_comments.push(newComment);
+      return { rows: [newComment] };
     }
 
     return { rows: [] };

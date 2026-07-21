@@ -19,7 +19,7 @@ const getTodos = async (req, res) => {
  */
 const createTodo = async (req, res) => {
   try {
-    const { title, description, category, dueDate, repeat } = req.body;
+    const { title, description, category, dueDate, priority, repeat } = req.body;
     
     if (!title || title.trim() === '') {
       return res.status(400).json({ error: 'Validation failed', details: ['Title is required and must be a string.'] });
@@ -30,6 +30,7 @@ const createTodo = async (req, res) => {
       description,
       category,
       dueDate,
+      priority,
       repeat
     });
 
@@ -46,7 +47,7 @@ const createTodo = async (req, res) => {
 const updateTodo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, category, dueDate, completed, repeat } = req.body;
+    const { title, description, category, dueDate, priority, completed, repeat } = req.body;
 
     const existingTodo = await todoModel.findById(req.userId, id);
     if (!existingTodo) {
@@ -58,6 +59,7 @@ const updateTodo = async (req, res) => {
       description,
       category,
       dueDate,
+      priority,
       completed,
       repeat
     });

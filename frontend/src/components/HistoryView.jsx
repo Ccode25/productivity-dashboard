@@ -1,33 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import useHistoryLogs from '../hooks/useHistoryLogs';
+import { useJournals } from '../hooks/useJournals';
+import useAuth from '../hooks/useAuth';
 import HeaderArea from './history/HeaderArea';
 import EmptyState from './history/EmptyState';
 import TimelineFeed from './history/TimelineFeed';
-import JournalCompiler from './history/JournalCompiler';
+import ProfessionalJournalView from './history/ProfessionalJournalView';
 
-/**
- * Main Export View Component (Container View)
- * Integrates ViewModel hook (useHistoryLogs) with presentation sub-components.
- */
 export default function HistoryView({ history = [], onClearHistory }) {
+  const { user } = useAuth();
+  const { journals, load: loadJournals, create: createJournal, loading: loadingJournals } = useJournals(() => {}, user);
+
+  useEffect(() => {
+    loadJournals();
+  }, [loadJournals]);
+
   const {
     groupedHistory,
-    availableDates,
-    selectedDate,
-    setSelectedDate,
-    currentJournalText,
-    handleCopyJournal,
-    copySuccess
   } = useHistoryLogs(history);
 
-  if (history.length === 0) {
+  if (history.length === 0 && journals.length === 0) {
     return (
       <div className="history-view-container glass-panel animate-fade-in" style={{ padding: '2rem' }}>
         <HeaderArea onClearHistory={onClearHistory} showClear={false} />
+        <ProfessionalJournalView journals={journals} onCreateJournal={createJournal} />
         <EmptyState />
       </div>
     );
   }
+
+  // To truly combine them chronologically, we could merge `journals` into `history` arrays.
+  // For now, groupedHistory handles the tasks, and ProfessionalJournalView handles the journals visually.
 
   return (
     <div className="history-view-container glass-panel animate-fade-in" style={{ padding: '2rem' }}>
@@ -39,13 +42,9 @@ export default function HistoryView({ history = [], onClearHistory }) {
           groupedHistory={groupedHistory}
         />
 
-        <JournalCompiler
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          availableDates={availableDates}
-          currentJournalText={currentJournalText}
-          handleCopyJournal={handleCopyJournal}
-          copySuccess={copySuccess}
+        <ProfessionalJournalView 
+          journals={journals} 
+          onCreateJournal={createJournal} 
         />
 
       </div>

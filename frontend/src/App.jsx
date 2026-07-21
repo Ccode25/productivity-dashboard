@@ -6,7 +6,9 @@ import TaskList from './components/TaskList';
 import ToastNotification from './components/ToastNotification';
 import FilterBar from './components/FilterBar';
 import { useTodos } from './hooks/useTodos';
+import { useFilteredTodos } from './hooks/useFilteredTodos';
 import DailySummaryView from './components/DailySummaryView';
+import SmartTriage from './components/SmartTriage';
 import ProductivityView from './components/ProductivityView';
 import HistoryView from './components/HistoryView';
 import LandingPage from './components/auth/LandingPage';
@@ -30,25 +32,22 @@ export default function App() {
   // Edit state
   const [todoToEdit, setTodoToEdit] = useState(null);
 
-  // Filters state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('All');
-  
   // View mode switcher: 'board' or 'daily'
   const [viewMode, setViewMode] = useState('board');
 
   // Load and manage todos via custom hook (passing current user)
   const { todos, history, loading, error, load, create, toggleComplete, edit, remove, clearHistoryLogs } = useTodos(addToast, user);
 
-  // Wrapper handlers that delegate to hook functions
-  const handleAddTodo = async (taskData) => {
-    await create(taskData);
-  };
-
-  const handleToggleComplete = async (id) => {
-    await toggleComplete(id);
-  };
+  // Filters logic extracted to hook
+  const {
+    searchQuery,
+    setSearchQuery,
+    statusFilter,
+    setStatusFilter,
+    categoryFilter,
+    setCategoryFilter,
+    filteredTodos
+  } = useFilteredTodos(todos);
 
   const handleStartEdit = (todo) => {
     setTodoToEdit(todo);
@@ -71,21 +70,6 @@ export default function App() {
       setTodoToEdit(null);
     }
   };
-
-  // Filter logic
-  const filteredTodos = todos.filter((todo) => {
-    const matchesSearch =
-      todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      todo.description.toLowerCase().includes(searchQuery.toLowerCase());
-    let matchesStatus = true;
-    if (statusFilter === 'active') matchesStatus = !todo.completed;
-    if (statusFilter === 'completed') matchesStatus = todo.completed;
-    let matchesCategory = true;
-    if (categoryFilter !== 'All') {
-      matchesCategory = todo.category.toLowerCase() === categoryFilter.toLowerCase();
-    }
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
 
   if (!user) {
     return (
@@ -111,10 +95,19 @@ export default function App() {
       {/* Stats Board */}
       <StatsDashboard todos={todos} />
 
+      {/* Smart Triage (What Should I Do Now) - Only show on board/daily view */}
+      {(viewMode === 'board' || viewMode === 'daily') && (
+        <SmartTriage 
+          todos={todos} 
+          onEdit={handleStartEdit} 
+          onToggleComplete={toggleComplete} 
+        />
+      )}
+
       {/* Task Form (Adds or Edits) - Hidden in Productivity & History Views */}
       {viewMode !== 'productivity' && viewMode !== 'history' && (
         <TaskForm
-          onSubmit={todoToEdit ? handleSaveEdit : handleAddTodo}
+          onSubmit={todoToEdit ? handleSaveEdit : create}
           todoToEdit={todoToEdit}
           onCancelEdit={handleCancelEdit}
         />
@@ -150,14 +143,14 @@ export default function App() {
       ) : viewMode === 'daily' ? (
         <DailySummaryView
           todos={filteredTodos}
-          onToggleComplete={handleToggleComplete}
+          onToggleComplete={toggleComplete}
           onEdit={handleStartEdit}
           onDelete={handleDeleteTodo}
         />
       ) : (
         <TaskList
           todos={filteredTodos}
-          onToggleComplete={handleToggleComplete}
+          onToggleComplete={toggleComplete}
           onEdit={handleStartEdit}
           onDelete={handleDeleteTodo}
         />

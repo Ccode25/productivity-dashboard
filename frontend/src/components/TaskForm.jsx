@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { InputField, TextAreaField, SelectField } from './common/FormField';
 
 const CATEGORIES = ['Work', 'Personal', 'Design', 'Health', 'Other'];
 
@@ -7,6 +8,7 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Work');
   const [dueDate, setDueDate] = useState('');
+  const [priority, setPriority] = useState('medium');
   const [repeat, setRepeat] = useState('none');
   const [error, setError] = useState('');
 
@@ -17,6 +19,7 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
       setDescription(todoToEdit.description || '');
       setCategory(todoToEdit.category || 'Work');
       setDueDate(todoToEdit.dueDate || '');
+      setPriority(todoToEdit.priority || 'medium');
       setRepeat(todoToEdit.repeat || 'none');
     } else {
       resetForm();
@@ -28,6 +31,7 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
     setDescription('');
     setCategory('Work');
     setDueDate('');
+    setPriority('medium');
     setRepeat('none');
     setError('');
   };
@@ -46,6 +50,7 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
       description: description.trim(),
       category,
       dueDate,
+      priority,
       repeat,
     };
 
@@ -59,69 +64,63 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
         {todoToEdit ? 'Edit Task' : 'Add New Task'}
       </h3>
 
-      <div className="form-group">
-        <label className="form-label" htmlFor="title-input">Task Title *</label>
-        <input
-          id="title-input"
-          type="text"
-          className="input-field"
-          placeholder="What needs to be done?"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        {error && <span style={{ color: 'hsl(var(--danger))', fontSize: '0.8rem', fontWeight: 500 }}>{error}</span>}
-      </div>
+      <InputField
+        id="title-input"
+        label="Task Title *"
+        placeholder="What needs to be done?"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        error={error}
+      />
 
-      <div className="form-group">
-        <label className="form-label" htmlFor="desc-input">Description</label>
-        <textarea
-          id="desc-input"
-          className="input-field"
-          placeholder="Add details about this task..."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </div>
+      <TextAreaField
+        id="desc-input"
+        label="Description"
+        placeholder="Add details about this task..."
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
 
       <div className="form-row">
-        <div className="form-group">
-          <label className="form-label" htmlFor="category-select">Category</label>
-          <select
-            id="category-select"
-            className="input-field"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {CATEGORIES.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </div>
+        <SelectField
+          id="category-select"
+          label="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          options={CATEGORIES.map(cat => ({ value: cat, label: cat }))}
+        />
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="date-input">Due Date</label>
-          <input
-            id="date-input"
-            type="date"
-            className="input-field"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-        </div>
+        <InputField
+          id="date-input"
+          label="Due Date"
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="repeat-select">Repeat</label>
-          <select
-            id="repeat-select"
-            className="input-field"
-            value={repeat}
-            onChange={(e) => setRepeat(e.target.value)}
-          >
-            <option value="none">None</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-          </select>
-        </div>
+        <SelectField
+          id="priority-select"
+          label="Priority"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          options={[
+            { value: 'low', label: 'Low' },
+            { value: 'medium', label: 'Medium' },
+            { value: 'high', label: 'High' }
+          ]}
+        />
+
+        <SelectField
+          id="repeat-select"
+          label="Repeat"
+          value={repeat}
+          onChange={(e) => setRepeat(e.target.value)}
+          options={[
+            { value: 'none', label: 'None' },
+            { value: 'daily', label: 'Daily' },
+            { value: 'weekly', label: 'Weekly' }
+          ]}
+        />
       </div>
 
       <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>

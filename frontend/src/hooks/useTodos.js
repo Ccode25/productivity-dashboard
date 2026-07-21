@@ -1,6 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchTodos, addTodo, updateTodo, deleteTodo, fetchHistory, clearHistory as apiClearHistory } from '../api/todos';
 
+const handleUpdateResult = (result, id, setTodos) => {
+  const updated = result._createdRecurring ? { ...result } : result;
+  const created = result._createdRecurring;
+  if (created) delete updated._createdRecurring;
+  
+  setTodos((prev) => {
+    let next = prev.map((t) => (t.id === id ? updated : t));
+    if (created) next = [created, ...next];
+    return next;
+  });
+  
+  return { updated, created };
+};
+
 export const useTodos = (addToast, user) => {
   const [todos, setTodos] = useState([]);
   const [history, setHistory] = useState([]);
@@ -59,19 +73,7 @@ export const useTodos = (addToast, user) => {
     const newCompleted = !todo.completed;
     try {
       const result = await updateTodo(id, { completed: newCompleted });
-      const updated = result._createdRecurring ? { ...result } : result;
-      const created = result._createdRecurring;
-      if (created) {
-        delete updated._createdRecurring;
-      }
-      
-      setTodos((prev) => {
-        let next = prev.map((t) => (t.id === id ? updated : t));
-        if (created) {
-          next = [created, ...next];
-        }
-        return next;
-      });
+      const { updated, created } = handleUpdateResult(result, id, setTodos);
       
       const msg = newCompleted
         ? `Completed: "${updated.title}"${created ? ' (recurring task scheduled!)' : ''}`
@@ -87,19 +89,7 @@ export const useTodos = (addToast, user) => {
   const edit = async (id, taskData) => {
     try {
       const result = await updateTodo(id, taskData);
-      const updated = result._createdRecurring ? { ...result } : result;
-      const created = result._createdRecurring;
-      if (created) {
-        delete updated._createdRecurring;
-      }
-      
-      setTodos((prev) => {
-        let next = prev.map((t) => (t.id === id ? updated : t));
-        if (created) {
-          next = [created, ...next];
-        }
-        return next;
-      });
+      const { updated } = handleUpdateResult(result, id, setTodos);
       
       addToast(`Task "${updated.title}" updated!`, 'success');
       await loadHistory();
