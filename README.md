@@ -175,3 +175,4 @@ Built as a full-stack portfolio project demonstrating:
 - JWT authentication with refresh token rotation
 - React context + custom hooks architecture
 - Clean, modular component structure
+
