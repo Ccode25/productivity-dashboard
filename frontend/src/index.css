@@ -81,64 +81,87 @@ body {
   width: 100%;
 }
 
-/* Container */
+/* ==========================================================================
+   Application Shell — full-viewport-width, anchored layout
+   No max-width or centering on the shell itself.
+   Centering is handled by .content-wrapper inside .dashboard-main.
+   ========================================================================== */
 .app-container {
+  /* Full-width application shell — never centered, never max-width constrained */
   width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 2rem;
-  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 100vh;
+  /* No gap, padding, max-width, margin, or animation here */
 }
 
 .dashboard-sidebar {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  /* Mobile: single column — padding applied here */
+  padding: 1.5rem 1rem;
 }
 
 .dashboard-main {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 2rem;
+  /* No padding here — padding lives in .content-wrapper */
 }
 
+/* Content centering wrapper — the ONLY element constrained by max-width */
+.content-wrapper {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem; /* Mobile: 16px sides */
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1;
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tablet (≥ 600px) */
+@media (min-width: 600px) {
+  .content-wrapper {
+    padding: 2rem 1.5rem; /* 24px sides */
+  }
+}
+
+/* Desktop sidebar + main split (≥ 900px) */
 @media (min-width: 900px) {
-  body {
-    /* Prevent body scroll on desktop removed */
+  .app-container {
+    flex-direction: row;
+    /* Full width — no max-width, no centering */
   }
 
-  .app-container {
-    max-width: 1400px;
-    min-height: 100vh;
-    flex-direction: row;
-    padding: 0;
-    gap: 0;
-  }
-  
   .dashboard-sidebar {
     width: 280px;
     flex-shrink: 0;
     padding: 2rem 1.5rem;
     border-right: 1px solid rgba(255, 255, 255, 0.05);
     background: rgba(0, 0, 0, 0.2);
+    /* Sticky sidebar anchored to viewport */
     position: sticky;
     top: 0;
     height: 100vh;
     overflow-y: auto;
   }
-  
+
   .dashboard-main {
     flex-grow: 1;
-    padding: 2rem 3rem;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .content-wrapper {
+    padding: 2rem 2rem; /* 32px sides on desktop */
+    /* max-width centers content within the main column */
   }
 }
 
@@ -1272,10 +1295,7 @@ input[type="date"].input-field::-webkit-calendar-picker-indicator {
 }
 
 @media (max-width: 768px) {
-  .app-container {
-    padding: 2.25rem 1.25rem;
-    gap: 1.75rem;
-  }
+  /* .app-container is never padded — padding lives in .content-wrapper */
 
   .app-logo {
     font-size: 2.25rem;
@@ -1382,8 +1402,8 @@ input[type="date"].input-field::-webkit-calendar-picker-indicator {
 
 /* Small Mobiles (max-width: 480px) */
 @media (max-width: 480px) {
-  .app-container {
-    padding: 1.5rem 0.75rem;
+  .content-wrapper {
+    padding: 1.25rem 0.75rem;
     gap: 1.5rem;
   }
 

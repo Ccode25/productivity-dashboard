@@ -111,59 +111,61 @@ export default function App() {
 
       {/* RIGHT COLUMN: Main Content */}
       <div className="dashboard-main">
-        {/* Stats Board */}
-        <StatsDashboard todos={todos} />
+        <div className="content-wrapper">
+          {/* Stats Board */}
+          <StatsDashboard todos={todos} />
 
-        {/* Smart Triage (What Should I Do Now) - Only show on board/daily view */}
-        {(viewMode === 'board' || viewMode === 'daily') && (
-          <SmartTriage 
-            todos={todos} 
-            onEdit={handleStartEdit} 
-            onToggleComplete={toggleComplete} 
-          />
-        )}
+          {/* Smart Triage (What Should I Do Now) - Only show on board/daily view */}
+          {(viewMode === 'board' || viewMode === 'daily') && (
+            <SmartTriage 
+              todos={todos} 
+              onEdit={handleStartEdit} 
+              onToggleComplete={toggleComplete} 
+            />
+          )}
 
-        {/* Task Form (Adds or Edits) - Hidden in Productivity & History Views */}
-        {viewMode !== 'productivity' && viewMode !== 'history' && (
-          <TaskForm
-            onSubmit={todoToEdit ? handleSaveEdit : create}
-            todoToEdit={todoToEdit}
-            onCancelEdit={handleCancelEdit}
-          />
-        )}
+          {/* Task Form (Adds or Edits) - Hidden in Productivity & History Views */}
+          {viewMode !== 'productivity' && viewMode !== 'history' && (
+            <TaskForm
+              onSubmit={todoToEdit ? handleSaveEdit : create}
+              todoToEdit={todoToEdit}
+              onCancelEdit={handleCancelEdit}
+            />
+          )}
 
-        {/* Dynamic Views */}
-        {loading ? (
-          <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
-            <div className="spinner" style={{ width: '40px', height: '40px', margin: '0 auto 1rem auto', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: 'hsl(var(--primary))', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-            <p style={{ color: 'hsl(var(--text-secondary))', margin: 0, fontWeight: 500 }}>Syncing user tasks from backend...</p>
-          </div>
-        ) : error ? (
-          <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
-            <p style={{ color: 'hsl(var(--danger))', marginBottom: '1rem', fontWeight: 500 }}>{error}</p>
-            <button className="btn btn-secondary" onClick={load}>Retry Connection</button>
-          </div>
-        ) : viewMode === 'productivity' ? (
-          <ProductivityView todos={todos} />
-        ) : viewMode === 'history' ? (
-          <HistoryView history={history} onClearHistory={clearHistoryLogs} />
-        ) : viewMode === 'daily' ? (
-          <DailySummaryView
-            todos={filteredTodos}
-            onToggleComplete={toggleComplete}
-            onEdit={handleStartEdit}
-            onDelete={handleDeleteTodo}
-          />
-        ) : (
-          <TaskList
-            todos={filteredTodos}
-            onToggleComplete={toggleComplete}
-            onEdit={handleStartEdit}
-            onDelete={handleDeleteTodo}
-          />
-        )}
+          {/* Dynamic Views */}
+          {loading ? (
+            <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
+              <div className="spinner" style={{ width: '40px', height: '40px', margin: '0 auto 1rem auto', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: 'hsl(var(--primary))', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+              <p style={{ color: 'hsl(var(--text-secondary))', margin: 0, fontWeight: 500 }}>Syncing user tasks from backend...</p>
+            </div>
+          ) : error ? (
+            <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem', margin: '2rem 0' }}>
+              <p style={{ color: 'hsl(var(--danger))', marginBottom: '1rem', fontWeight: 500 }}>{error}</p>
+              <button className="btn btn-secondary" onClick={load}>Retry Connection</button>
+            </div>
+          ) : viewMode === 'productivity' ? (
+            <ProductivityView todos={todos} />
+          ) : viewMode === 'history' ? (
+            <HistoryView history={history} onClearHistory={clearHistoryLogs} />
+          ) : viewMode === 'daily' ? (
+            <DailySummaryView
+              todos={filteredTodos}
+              onToggleComplete={toggleComplete}
+              onEdit={handleStartEdit}
+              onDelete={handleDeleteTodo}
+            />
+          ) : (
+            <TaskList
+              todos={filteredTodos}
+              onToggleComplete={toggleComplete}
+              onEdit={handleStartEdit}
+              onDelete={handleDeleteTodo}
+            />
+          )}
 
-        <Footer />
+          <Footer />
+        </div>
       </div>
 
 
