@@ -7,9 +7,11 @@ import EmptyState from './history/EmptyState';
 import TimelineFeed from './history/TimelineFeed';
 import ProfessionalJournalView from './history/ProfessionalJournalView';
 
+const noop = () => {};
+
 export default function HistoryView({ history = [], onClearHistory }) {
   const { user } = useAuth();
-  const { journals, load: loadJournals, create: createJournal, loading: loadingJournals } = useJournals(() => {}, user);
+  const { journals, load: loadJournals, create: createJournal, remove: removeJournal, loading: loadingJournals } = useJournals(noop, user);
 
   useEffect(() => {
     loadJournals();
@@ -23,7 +25,7 @@ export default function HistoryView({ history = [], onClearHistory }) {
     return (
       <div className="history-view-container glass-panel animate-fade-in" style={{ padding: '2rem' }}>
         <HeaderArea onClearHistory={onClearHistory} showClear={false} />
-        <ProfessionalJournalView journals={journals} onCreateJournal={createJournal} />
+        <ProfessionalJournalView journals={journals} onCreateJournal={createJournal} onDeleteJournal={removeJournal} />
         <EmptyState />
       </div>
     );
@@ -44,7 +46,8 @@ export default function HistoryView({ history = [], onClearHistory }) {
 
         <ProfessionalJournalView 
           journals={journals} 
-          onCreateJournal={createJournal} 
+          onCreateJournal={createJournal}
+          onDeleteJournal={removeJournal}
         />
 
       </div>

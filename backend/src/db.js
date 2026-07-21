@@ -336,6 +336,15 @@ if (!queryFn) {
       return { rows: [newJournal] };
     }
 
+    if (cleanText.startsWith('DELETE FROM daily_journals')) {
+      const index = localStore.daily_journals.findIndex(x => x.id === params[0] && x.user_id === params[1]);
+      if (index !== -1) {
+        localStore.daily_journals.splice(index, 1);
+        return { rows: [{ id: params[0] }] };
+      }
+      return { rows: [] };
+    }
+
     // 6. TASK COMMENTS Queries
     if (cleanText.includes('FROM task_comments')) {
       if (cleanText.includes('WHERE task_id = $1')) {

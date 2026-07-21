@@ -33,6 +33,15 @@
   --text-muted: 215 15% 45%;
 }
 
+::selection {
+  background: hsl(var(--primary) / 0.8);
+  color: white;
+}
+::-moz-selection {
+  background: hsl(var(--primary) / 0.8);
+  color: white;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -217,28 +226,37 @@ body {
 }
 
 .form-label {
-  font-size: 0.85rem;
+  display: block;
+  font-size: 0.75rem;
   font-weight: 600;
   color: hsl(var(--text-secondary));
+  text-transform: uppercase;
   letter-spacing: 0.02em;
+  margin-bottom: 0.35rem;
 }
 
 .input-field {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
-  color: hsl(var(--text-primary));
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  color: white;
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   outline: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+}
+
+.input-field:hover {
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .input-field:focus {
   border-color: hsl(var(--primary));
   box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2), 0 0 10px 0 hsl(var(--primary) / 0.1);
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .input-field::placeholder {
@@ -250,14 +268,43 @@ textarea.input-field {
   min-height: 80px;
 }
 
-/* Select element styling reset */
 select.input-field {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 1rem center;
+  background-position: right 0.75rem center;
   background-size: 1.25rem;
-  padding-right: 2.5rem;
+  padding-right: 2.25rem;
+  cursor: pointer;
+}
+
+select.input-field option {
+  background: #151828;
+  color: hsl(var(--text-primary));
+  font-weight: 500;
+}
+
+/* Date picker specific styling */
+input[type="date"].input-field {
+  appearance: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+input[type="date"].input-field::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(1) brightness(0.8);
+}
+
+.form-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  color: hsl(var(--danger));
+  font-size: 0.75rem;
+  margin-top: 0.35rem;
+  font-weight: 500;
 }
 
 /* Form Row */
@@ -1328,5 +1375,27 @@ select.input-field {
   }
 }
 
+/* Task Form Layout */
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
 
+.form-title {
+  font-size: 1.15rem;
+  color: white;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
 
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.form-submit-btn {
+  flex: 1;
+}

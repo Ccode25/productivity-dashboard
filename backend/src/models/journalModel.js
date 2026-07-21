@@ -37,7 +37,16 @@ const create = async (userId, data) => {
   return result.rows[0];
 };
 
+const remove = async (userId, id) => {
+  const result = await db.query(
+    'DELETE FROM daily_journals WHERE id = $1 AND user_id = $2 RETURNING id',
+    [id, userId]
+  );
+  return result.rows.length > 0;
+};
+
 module.exports = {
   findAll,
-  create
+  create,
+  remove
 };

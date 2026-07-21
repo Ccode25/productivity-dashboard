@@ -11,6 +11,7 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
   const [priority, setPriority] = useState('medium');
   const [repeat, setRepeat] = useState('none');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Pre-fill form when editing a todo
   useEffect(() => {
@@ -36,8 +37,9 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
     setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError('');
 
     if (!title.trim()) {
@@ -54,13 +56,20 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
       repeat,
     };
 
-    onSubmit(taskData);
-    resetForm();
+    setIsSubmitting(true);
+    try {
+      await onSubmit(taskData);
+      resetForm();
+    } catch (err) {
+      setError('Failed to save task');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <form className="glass-panel form-group" onSubmit={handleSubmit} style={{ gap: '1.25rem' }}>
-      <h3 className="form-label" style={{ fontSize: '1.15rem', color: 'white', marginBottom: '0.25rem' }}>
+    <form className="glass-panel task-form" onSubmit={handleSubmit}>
+      <h3 className="form-title">
         {todoToEdit ? 'Edit Task' : 'Add New Task'}
       </h3>
 
@@ -123,9 +132,9 @@ export default function TaskForm({ onSubmit, todoToEdit, onCancelEdit }) {
         />
       </div>
 
-      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-        <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-          {todoToEdit ? 'Save Changes' : 'Add Task'}
+      <div className="form-actions">
+        <button type="submit" className="btn btn-primary form-submit-btn" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : (todoToEdit ? 'Save Changes' : 'Add Task')}
         </button>
         
         {todoToEdit && (

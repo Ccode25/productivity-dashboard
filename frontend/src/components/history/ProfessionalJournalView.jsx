@@ -3,8 +3,9 @@ import Card from '../common/Card';
 import { InputField, TextAreaField } from '../common/FormField';
 import Button from '../common/Button';
 
-export default function ProfessionalJournalView({ journals, onCreateJournal }) {
+export default function ProfessionalJournalView({ journals, onCreateJournal, onDeleteJournal }) {
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     project_name: '',
     objective: '',
@@ -25,13 +26,19 @@ export default function ProfessionalJournalView({ journals, onCreateJournal }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await onCreateJournal(formData);
-    setShowForm(false);
-    setFormData({
-      project_name: '', objective: '', work_performed: '', progress_summary: '',
-      issues_encountered: '', resolution: '', materials_used: '', time_spent: '',
-      lessons_learned: '', next_action: ''
-    });
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onCreateJournal(formData);
+      setShowForm(false);
+      setFormData({
+        project_name: '', objective: '', work_performed: '', progress_summary: '',
+        issues_encountered: '', resolution: '', materials_used: '', time_spent: '',
+        lessons_learned: '', next_action: ''
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -66,8 +73,10 @@ export default function ProfessionalJournalView({ journals, onCreateJournal }) {
             <InputField label="Next Action" name="next_action" value={formData.next_action} onChange={handleChange} />
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-              <Button variant="secondary" onClick={() => setShowForm(false)}>Cancel</Button>
-              <Button variant="primary" type="submit">Save Journal Entry</Button>
+              <Button variant="secondary" onClick={() => setShowForm(false)} disabled={isSubmitting}>Cancel</Button>
+              <Button variant="primary" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save Journal Entry'}
+              </Button>
             </div>
           </form>
         </Card>
@@ -78,7 +87,27 @@ export default function ProfessionalJournalView({ journals, onCreateJournal }) {
           <Card key={j.id} style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'hsl(var(--primary))' }}>{j.project_name}</h4>
-              <span style={{ fontSize: '0.8rem', color: 'hsl(var(--text-muted))' }}>{new Date(j.created_at).toLocaleString()}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '0.8rem', color: 'hsl(var(--text-muted))' }}>{new Date(j.created_at).toLocaleString()}</span>
+                {onDeleteJournal && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete this journal entry?')) {
+                        onDeleteJournal(j.id);
+                      }
+                    }}
+                    style={{ background: 'none', border: 'none', color: 'hsl(var(--danger))', cursor: 'pointer', padding: '0.25rem' }}
+                    title="Delete Journal"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18"></path>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem' }}>

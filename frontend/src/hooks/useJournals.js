@@ -33,11 +33,22 @@ export const useJournals = (addToast, user) => {
     }
   };
 
+  const remove = async (id) => {
+    try {
+      await journalsApi.deleteJournal(id);
+      setJournals(prev => prev.filter(j => j.id !== id));
+      addToast('Journal entry deleted', 'info');
+    } catch (err) {
+      addToast('Failed to delete journal', 'error');
+    }
+  };
+
   return {
     journals,
     loading,
     error,
     load,
-    create
+    create,
+    remove
   };
 };

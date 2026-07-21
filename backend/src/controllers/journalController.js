@@ -18,7 +18,24 @@ const createJournal = async (req, res) => {
   }
 };
 
+const deleteJournal = async (req, res) => {
+  try {
+    console.log('Attempting to delete journal. ID:', req.params.id, 'UserID:', req.userId);
+    const success = await journalModel.remove(req.userId, req.params.id);
+    if (!success) {
+      console.log('Delete failed. Row not found or not owned by user.');
+      return res.status(404).json({ error: 'Journal not found' });
+    }
+    console.log('Delete successful');
+    res.json({ message: 'Journal deleted successfully', id: req.params.id });
+  } catch (error) {
+    console.error('Error deleting journal:', error);
+    res.status(500).json({ error: 'Failed to delete journal.' });
+  }
+};
+
 module.exports = {
   getJournals,
-  createJournal
+  createJournal,
+  deleteJournal
 };
